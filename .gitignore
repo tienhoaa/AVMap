@@ -1,0 +1,33 @@
+## Build and binary outputs
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+
+## Release & Deployment packages
+BAN_GIAO_*/
+*.zip
+
+## Visual Studio & IDE files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.opensdf
+*.sdf
+
+## Build logs
+build_log_*.txt
+build_result.txt
+
+## OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+
+## Temporary files & caches
+*.tmp
+*.log
+*.bak

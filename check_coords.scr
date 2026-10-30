@@ -1,0 +1,12 @@
+(setq ent (ssget "X" '((0 . "LWPOLYLINE"))))
+(setq e1 (ssname ent 0))
+(princ "\nLWPOLYLINE Layer: ")
+(princ (cdr (assoc 8 (entget e1))))
+(princ "\nFirst point: ")
+(princ (cdr (assoc 10 (entget e1))))
+(princ "\nEXTMIN: ")
+(princ (getvar "EXTMIN"))
+(princ "\nEXTMAX: ")
+(princ (getvar "EXTMAX"))
+QUIT
+Y

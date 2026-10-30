@@ -1,0 +1,18 @@
+(setq ss (ssget "X" '((0 . "IMAGE"))))
+(if ss
+  (progn
+    (princ (strcat "\nFound IMAGE count: " (itoa (sslength ss))))
+    (setq img (ssname ss 0))
+    (princ "\nImage Layer: ")
+    (princ (cdr (assoc 8 (entget img))))
+    (princ "\nImage insertion point: ")
+    (princ (cdr (assoc 10 (entget img))))
+    (princ "\nImage U-vector: ")
+    (princ (cdr (assoc 11 (entget img))))
+    (princ "\nImage V-vector: ")
+    (princ (cdr (assoc 12 (entget img))))
+  )
+  (princ "\nNO IMAGE FOUND IN DWG")
+)
+QUIT
+Y

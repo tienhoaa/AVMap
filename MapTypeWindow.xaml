@@ -1,0 +1,88 @@
+<Window x:Class="AVMap.MapTypeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Chọn loại bản đồ nền - AVMap" 
+        Height="540" Width="720"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="NoResize"
+        Background="#F8FAFC"
+        FontFamily="Segoe UI" FontSize="13">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0F172A" CornerRadius="6" Padding="15,10" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="🗺️" FontSize="22" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <StackPanel>
+                    <TextBlock Text="CHỌN NGUỒN BẢN ĐỒ NỀN (BACKGROUND MAP)" FontWeight="Bold" FontSize="15" Foreground="White"/>
+                    <TextBlock Text="Hỗ trợ Google Maps, OpenStreetMap (OSM) miễn phí, và Esri ArcGIS vệ tinh" FontSize="12" Foreground="#94A3B8"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Map Cards Grid (3 Rows x 2 Columns = 6 Options) -->
+        <UniformGrid Grid.Row="1" Columns="2" Rows="3" Margin="0,2,0,5">
+            <!-- 1. Google Hybrid -->
+            <Border x:Name="cardHybrid" Background="White" CornerRadius="6" BorderBrush="#38BDF8" BorderThickness="2" Margin="5" Padding="10" MouseDown="CardHybrid_MouseDown" Cursor="Hand">
+                <StackPanel>
+                    <TextBlock Text="🛰️ Google Hybrid (Vệ tinh + Tên đường)" FontWeight="Bold" FontSize="13" Foreground="#0284C7"/>
+                    <TextBlock Text="Ảnh chụp vệ tinh độ nét cao kết hợp tên đường, khu dân cư, địa danh. Rất thích hợp làm quy hoạch &amp; giao thông." TextWrapping="Wrap" Foreground="#64748B" Margin="0,4,0,0" FontSize="11.5"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 2. Google Satellite -->
+            <Border x:Name="cardSatellite" Background="White" CornerRadius="6" BorderBrush="#E2E8F0" BorderThickness="1" Margin="5" Padding="10" MouseDown="CardSatellite_MouseDown" Cursor="Hand">
+                <StackPanel>
+                    <TextBlock Text="🌍 Google Vệ tinh thuần túy" FontWeight="Bold" FontSize="13" Foreground="#1E293B"/>
+                    <TextBlock Text="Chỉ hiển thị ảnh chụp vệ tinh quang học tự nhiên, không kèm các đường nét nhãn chữ làm rối bản vẽ." TextWrapping="Wrap" Foreground="#64748B" Margin="0,4,0,0" FontSize="11.5"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 3. OpenStreetMap (OSM) - MIỄN PHÍ -->
+            <Border x:Name="cardOsm" Background="White" CornerRadius="6" BorderBrush="#E2E8F0" BorderThickness="1" Margin="5" Padding="10" MouseDown="CardOsm_MouseDown" Cursor="Hand">
+                <StackPanel>
+                    <TextBlock Text="🌐 OpenStreetMap (Bản đồ mở miễn phí)" FontWeight="Bold" FontSize="13" Foreground="#1E293B"/>
+                    <TextBlock Text="Nguồn dữ liệu mở toàn cầu (OSM). Rất chi tiết về số nhà, tim đường, ranh giới và công trình công cộng. Hoàn toàn miễn phí." TextWrapping="Wrap" Foreground="#64748B" Margin="0,4,0,0" FontSize="11.5"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 4. Esri World Imagery (ArcGIS) -->
+            <Border x:Name="cardEsri" Background="White" CornerRadius="6" BorderBrush="#E2E8F0" BorderThickness="1" Margin="5" Padding="10" MouseDown="CardEsri_MouseDown" Cursor="Hand">
+                <StackPanel>
+                    <TextBlock Text="🛰️ Esri ArcGIS (Vệ tinh toàn cầu)" FontWeight="Bold" FontSize="13" Foreground="#1E293B"/>
+                    <TextBlock Text="Ảnh vệ tinh độ phân giải cao của hãng Esri ArcGIS. Dữ liệu quang học cập nhật mới, độ nét cực cao ở vùng ngoại thành và đồi núi." TextWrapping="Wrap" Foreground="#64748B" Margin="0,4,0,0" FontSize="11.5"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 5. Google Roadmap -->
+            <Border x:Name="cardRoadmap" Background="White" CornerRadius="6" BorderBrush="#E2E8F0" BorderThickness="1" Margin="5" Padding="10" MouseDown="CardRoadmap_MouseDown" Cursor="Hand">
+                <StackPanel>
+                    <TextBlock Text="🛣️ Google Bản đồ Giao thông" FontWeight="Bold" FontSize="13" Foreground="#1E293B"/>
+                    <TextBlock Text="Bản đồ đường sá, cao tốc, quốc lộ, số hiệu đường và ranh giới hành chính rõ ràng, nền sáng dễ nhìn." TextWrapping="Wrap" Foreground="#64748B" Margin="0,4,0,0" FontSize="11.5"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 6. Google Terrain -->
+            <Border x:Name="cardTerrain" Background="White" CornerRadius="6" BorderBrush="#E2E8F0" BorderThickness="1" Margin="5" Padding="10" MouseDown="CardTerrain_MouseDown" Cursor="Hand">
+                <StackPanel>
+                    <TextBlock Text="⛰️ Google Bản đồ Địa hình" FontWeight="Bold" FontSize="13" Foreground="#1E293B"/>
+                    <TextBlock Text="Bản đồ thể hiện độ dốc, đồi núi, thung lũng và mạng lưới sông suối, rất hữu ích cho dự án thủy lợi, cầu đường." TextWrapping="Wrap" Foreground="#64748B" Margin="0,4,0,0" FontSize="11.5"/>
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- Footer -->
+        <DockPanel Grid.Row="2" Margin="0,10,0,0" LastChildFill="False">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                <Button Content="Đóng" Width="90" Height="32" Margin="0,0,10,0" Background="#E2E8F0" BorderThickness="0" Click="BtnClose_Click"/>
+                <Button Content="✔ Áp dụng" Width="110" Height="32" Background="#0284C7" Foreground="White" FontWeight="Bold" BorderThickness="0" Click="BtnApply_Click"/>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>

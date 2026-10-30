@@ -1,0 +1,14 @@
+(setq ss (ssget "X" '((8 . "*DONGMUCCHINH*"))))
+(if ss
+  (progn
+    (princ (strcat "\nFound entities: " (itoa (sslength ss))))
+    (setq ent (ssname ss 0))
+    (princ "\nEntity type: ")
+    (princ (cdr (assoc 0 (entget ent))))
+    (princ "\nCoords: ")
+    (princ (cdr (assoc 10 (entget ent))))
+  )
+  (princ "\nNot found layer DONGMUCCHINH")
+)
+QUIT
+Y

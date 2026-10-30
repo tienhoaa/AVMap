@@ -1,0 +1,81 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>disable</Nullable>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <AssemblyName>AVMap_enjiCAD</AssemblyName>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+    <PackageReference Include="Magick.NET-Q8-x64" Version="15.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <Reference Include="GcCoreMgd">
+      <HintPath>C:\Program Files\CIC\enjiCAD2026\GcCoreMgd.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="GcDbMgd">
+      <HintPath>C:\Program Files\CIC\enjiCAD2026\GcDbMgd.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="GcMgd">
+      <HintPath>C:\Program Files\CIC\enjiCAD2026\GcMgd.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="GdWindows">
+      <HintPath>C:\Program Files\CIC\enjiCAD2026\GdWindows.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\VN2000Catalog.cs" Link="VN2000Catalog.cs" />
+    <Compile Include="..\VN2000Transform.cs" Link="VN2000Transform.cs" />
+    <Compile Include="..\GoogleTileClient.cs" Link="GoogleTileClient.cs" />
+    <Compile Include="..\CloudPhotoDownloader.cs" Link="CloudPhotoDownloader.cs" />
+    <Compile Include="..\IconHelper.cs" Link="IconHelper.cs" />
+    <Compile Include="..\CrsWindow.xaml.cs" Link="CrsWindow.xaml.cs">
+      <DependentUpon>CrsWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="..\CrsWindow.xaml" Link="CrsWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="..\MapTypeWindow.xaml.cs" Link="MapTypeWindow.xaml.cs">
+      <DependentUpon>MapTypeWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="..\MapTypeWindow.xaml" Link="MapTypeWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="..\StreetViewWindow.xaml.cs" Link="StreetViewWindow.xaml.cs">
+      <DependentUpon>StreetViewWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="..\StreetViewWindow.xaml" Link="StreetViewWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="..\StreetViewAiSettings.cs" Link="StreetViewAiSettings.cs" />
+    <Compile Include="..\StreetViewAiService.cs" Link="StreetViewAiService.cs" />
+    <Compile Include="..\StreetViewAiSettingsWindow.xaml.cs" Link="StreetViewAiSettingsWindow.xaml.cs">
+      <DependentUpon>StreetViewAiSettingsWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="..\StreetViewAiSettingsWindow.xaml" Link="StreetViewAiSettingsWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="..\HelpWindow.xaml.cs" Link="HelpWindow.xaml.cs">
+      <DependentUpon>HelpWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="..\HelpWindow.xaml" Link="HelpWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <EmbeddedResource Include="..\Icons\*.png" Link="Icons\%(Filename)%(Extension)" />
+    <EmbeddedResource Include="vn_building_tiles.json" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+(princ "\n--- VIEW INFORMATION ---")
+(princ "\nVIEWCTR: ")
+(princ (getvar "VIEWCTR"))
+(princ "\nTARGET: ")
+(princ (getvar "TARGET"))
+(princ "\nVIEWSIZE: ")
+(princ (getvar "VIEWSIZE"))
+(princ "\nSCREENSIZE: ")
+(princ (getvar "SCREENSIZE"))
+(princ "\n--- END ---")
+QUIT
+Y

@@ -1,0 +1,153 @@
+<Window x:Class="AVMap.CaptureBoxWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Quét Vùng Bình Đồ Vệ Tinh - AVMap" 
+        Height="630" Width="680"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="NoResize"
+        Background="#F8FAFC"
+        FontFamily="Segoe UI" FontSize="13">
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0F172A" CornerRadius="8" Padding="16,12" Margin="0,0,0,14">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="📐" FontSize="26" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <StackPanel>
+                    <TextBlock Text="QUÉT VÙNG BÌNH ĐỒ VỆ TINH (CHUẨN VN-2000)" FontWeight="Bold" FontSize="15" Foreground="White"/>
+                    <TextBlock Text="Chụp cố định khu vực dự án, độ nét cao phục vụ in ấn Layout và lập bình đồ khảo sát" FontSize="12" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Main Body -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Group 1: Phạm vi vùng quét -->
+                <GroupBox Header=" 1. Phạm vi vùng bình đồ " FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12" Padding="12">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="📐 Quét 2 Điểm Trên Bản Vẽ CAD" Height="36" Background="#0284C7" Foreground="White" FontWeight="Bold" BorderThickness="0" Click="BtnPickArea_Click" Cursor="Hand"/>
+                            <Button Grid.Column="2" Content="🖥️ Lấy Khung Nhìn Màn Hình" Height="36" Background="#E2E8F0" Foreground="#1E293B" FontWeight="SemiBold" BorderThickness="0" Click="BtnUseCurrentView_Click" Cursor="Hand"/>
+                        </Grid>
+
+                        <Border Background="#F1F5F9" CornerRadius="6" Padding="10" Margin="0,4,0,0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="0" x:Name="txtCoord1" Text="Điểm 1 (Góc dưới-trái): Chưa chọn" FontSize="12" Foreground="#475569"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtCoord2" Text="Điểm 2 (Góc trên-phải): Chưa chọn" FontSize="12" Foreground="#475569"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" x:Name="txtAreaDimensions" Text="Kích thước: 0m x 0m | Diện tích: 0 ha" FontWeight="Bold" FontSize="12.5" Foreground="#0369A1" Margin="0,5,0,0"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Group 2: Nguồn bản đồ & Chất lượng ảnh -->
+                <GroupBox Header=" 2. Nguồn bản đồ &amp; Chất lượng in ấn " FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12" Padding="12">
+                    <StackPanel>
+                        <!-- Nguồn bản đồ -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Nguồn bản đồ:" VerticalAlignment="Center" Foreground="#475569" FontWeight="Normal"/>
+                            <ComboBox Grid.Column="1" x:Name="cmbMapSource" Height="30" VerticalContentAlignment="Center">
+                                <ComboBoxItem Content="🛰️ Google Hybrid (Vệ tinh + Tên đường, địa danh)" IsSelected="True" Tag="y"/>
+                                <ComboBoxItem Content="🌍 Google Vệ tinh quang học thuần túy" Tag="s"/>
+                                <ComboBoxItem Content="🌐 OpenStreetMap (OSM / Bản đồ đường phố miễn phí)" Tag="osm"/>
+                                <ComboBoxItem Content="🛰️ Esri ArcGIS (Vệ tinh toàn cầu độ nét cao)" Tag="esri"/>
+                                <ComboBoxItem Content="🛣️ Google Giao thông (Đường sá, quốc lộ)" Tag="m"/>
+                                <ComboBoxItem Content="⛰️ Google Địa hình (Độ dốc, đồi núi)" Tag="p"/>
+                            </ComboBox>
+                        </Grid>
+
+                        <!-- Lựa chọn chất lượng ảnh -->
+                        <TextBlock Text="Độ phân giải &amp; Mức chi tiết ảnh:" Foreground="#475569" FontWeight="Normal" Margin="0,0,0,6"/>
+                        <UniformGrid Columns="3" Margin="0,2,0,0">
+                            <RadioButton x:Name="rbQualityUltra" GroupName="Quality" IsChecked="True" Margin="0,0,6,0">
+                                <StackPanel Margin="2,0,0,0">
+                                    <TextBlock Text="🌟 Cực nét (Ultra HD)" FontWeight="Bold" Foreground="#0F172A"/>
+                                    <TextBlock Text="Phù hợp in ấn A0/A1 trên Layout" FontSize="11" Foreground="#64748B"/>
+                                </StackPanel>
+                            </RadioButton>
+
+                            <RadioButton x:Name="rbQualityMedium" GroupName="Quality" Margin="0,0,6,0">
+                                <StackPanel Margin="2,0,0,0">
+                                    <TextBlock Text="⚡ Tiêu chuẩn (Full HD)" FontWeight="Bold" Foreground="#0F172A"/>
+                                    <TextBlock Text="Cân bằng nét &amp; nhẹ file" FontSize="11" Foreground="#64748B"/>
+                                </StackPanel>
+                            </RadioButton>
+
+                            <RadioButton x:Name="rbQualityFast" GroupName="Quality">
+                                <StackPanel Margin="2,0,0,0">
+                                    <TextBlock Text="🚀 Nhanh (Thấp)" FontWeight="Bold" Foreground="#0F172A"/>
+                                    <TextBlock Text="Tải siêu tốc cho vùng rộng lớn" FontSize="11" Foreground="#64748B"/>
+                                </StackPanel>
+                            </RadioButton>
+                        </UniformGrid>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Group 3: Tùy chọn xuất & Lưu trữ -->
+                <GroupBox Header=" 3. Tùy chọn xuất file &amp; Chèn vào CAD " FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,10" Padding="12">
+                    <StackPanel>
+                        <CheckBox x:Name="chkInsertCad" Content="Tự động chèn ảnh vào ModelSpace tại đúng tọa độ VN-2000" IsChecked="True" Margin="0,0,0,6" FontWeight="Normal"/>
+                        <CheckBox x:Name="chkExportWorldFile" Content="Xuất kèm file tọa độ thế giới (World File .jgw/.tfw để mở trên GIS/Civil3D)" IsChecked="True" Margin="0,0,0,8" FontWeight="Normal"/>
+
+                        <Grid Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="70"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Thư mục lưu ảnh:" VerticalAlignment="Center" Foreground="#475569" FontWeight="Normal"/>
+                            <TextBox Grid.Column="1" x:Name="txtSaveDirectory" Height="28" VerticalContentAlignment="Center" Padding="5,0"/>
+                            <Button Grid.Column="3" Content="Chọn..." Height="28" Background="#E2E8F0" BorderThickness="0" Click="BtnBrowseFolder_Click" Cursor="Hand"/>
+                        </Grid>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <Grid Grid.Row="2" Margin="0,10,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Progress Bar & Status -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,8">
+                <ProgressBar x:Name="pbProgress" Height="8" IsIndeterminate="False" Visibility="Collapsed" Margin="0,0,0,4"/>
+                <TextBlock x:Name="txtStatus" Text="Sẵn sàng quét vùng bình đồ..." FontSize="12" Foreground="#64748B"/>
+            </StackPanel>
+
+            <DockPanel Grid.Row="1" LastChildFill="False">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                    <Button Content="Đóng" Width="90" Height="34" Margin="0,0,10,0" Background="#E2E8F0" Foreground="#334155" FontWeight="SemiBold" BorderThickness="0" Click="BtnClose_Click" Cursor="Hand"/>
+                    <Button x:Name="btnExecute" Content="🚀 BẮT ĐẦU CHỤP &amp; XUẤT ẢNH" Width="220" Height="34" Background="#0284C7" Foreground="White" FontWeight="Bold" BorderThickness="0" Click="BtnExecute_Click" Cursor="Hand"/>
+                </StackPanel>
+            </DockPanel>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,130 @@
+<Window x:Class="AVMap.Enji.ContourWindow_enji"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Tạo Đường Đồng Mức Địa Hình (DEM VN-2000) - AVMap enjiCAD" 
+        Height="630" Width="680"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="NoResize"
+        Background="#F8FAFC"
+        FontFamily="Segoe UI" FontSize="13">
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0F172A" CornerRadius="8" Padding="16,12" Margin="0,0,0,12">
+            <DockPanel LastChildFill="False">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                    <TextBlock Text="🏔️" FontSize="26" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="TẠO ĐƯỜNG ĐỒNG MỨC ĐỊA HÌNH TOÀN CẦU" FontWeight="Bold" FontSize="15" Foreground="White"/>
+                        <TextBlock Text="Mô hình độ cao số (AWS Terrarium / SRTM / Copernicus) gắn cao độ 3D chuẩn VN-2000" FontSize="12" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+                <Border DockPanel.Dock="Right" Background="#1E293B" CornerRadius="4" Padding="10,6" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Hệ tọa độ: " Foreground="#94A3B8" FontSize="12"/>
+                        <TextBlock x:Name="lblActiveCrs" Text="VN-2000" FontWeight="Bold" Foreground="#38BDF8" FontSize="12"/>
+                    </StackPanel>
+                </Border>
+            </DockPanel>
+        </Border>
+
+        <!-- Main Body -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Group 1: Phạm vi vùng tạo đồng mức -->
+                <GroupBox Header=" 1. Phạm vi vùng địa hình " FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12" Padding="12">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="btnPick2Points" Grid.Column="0" Content="📐 Quét 2 Điểm Góc (Hình Chữ Nhật)" Height="36" Background="#0284C7" Foreground="White" FontWeight="Bold" BorderThickness="0" Click="BtnPick2Points_Click" Cursor="Hand"/>
+                            <Button x:Name="btnPickPolyline" Grid.Column="2" Content="⬡ Chọn Polyline Ranh Giới Sẵn Có" Height="36" Background="#E2E8F0" Foreground="#1E293B" FontWeight="SemiBold" BorderThickness="0" Click="BtnPickPolyline_Click" Cursor="Hand"/>
+                        </Grid>
+
+                        <Border Background="#F1F5F9" CornerRadius="6" Padding="10" Margin="0,4,0,0">
+                            <StackPanel>
+                                <TextBlock x:Name="txtAreaDimensions" Text="Khu vực: Chưa chọn phạm vi (Vui lòng quét 2 điểm hoặc chọn ranh Polyline)" FontWeight="Bold" FontSize="12.5" Foreground="#0369A1"/>
+                                <TextBlock x:Name="txtAreaCoords" Text="Tọa độ: X=[...] Y=[...]" FontSize="11.5" Foreground="#64748B" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Group 2: Thiết lập thông số đồng mức & Nhãn cao độ -->
+                <GroupBox Header=" 2. Thiết lập đường đồng mức &amp; Nhãn cao độ " FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12" Padding="12">
+                    <StackPanel>
+                        <!-- Khoảng cao đều -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="220"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Khoảng cao đều (m):" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#334155"/>
+                            <ComboBox x:Name="cboInterval" Grid.Column="1" Height="28" IsEditable="True">
+                                <ComboBoxItem Content="1 (Chi tiết vùng bằng phẳng)"/>
+                                <ComboBoxItem Content="2"/>
+                                <ComboBoxItem Content="5 (Chuẩn khảo sát &amp; đồi núi)" IsSelected="True"/>
+                                <ComboBoxItem Content="10 (Vùng núi dốc)"/>
+                                <ComboBoxItem Content="20 (Dãy núi cao)"/>
+                                <ComboBoxItem Content="50"/>
+                            </ComboBox>
+                        </Grid>
+
+                        <!-- Tùy chọn điền nhãn -->
+                        <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,4,0,10">
+                            <StackPanel>
+                                <CheckBox x:Name="chkAddLabels" Content="Điền nhãn số cao độ (Text) dọc theo đường đồng mức" IsChecked="True" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,0,0,8" Checked="ChkAddLabels_Changed" Unchecked="ChkAddLabels_Changed"/>
+
+                                <StackPanel x:Name="pnlLabelSettings" Margin="20,0,0,0">
+                                    <RadioButton x:Name="rbLabelIndexOnly" Content="Chỉ điền trên đường đồng mức cái (Index Contours - mỗi 5 đường) [Khuyến nghị tránh dày đặc]" IsChecked="True" Margin="0,0,0,6"/>
+                                    <RadioButton x:Name="rbLabelAll" Content="Điền trên tất cả các đường đồng mức (Đường cái &amp; Đường con)" Margin="0,0,0,8"/>
+
+                                    <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Khoảng cách giữa các nhãn (m):" VerticalAlignment="Center" Foreground="#475569"/>
+                                        <TextBox x:Name="txtLabelSpacing" Grid.Column="1" Text="250" Height="26" VerticalContentAlignment="Center" ToolTip="Nhập khoảng cách giữa các số cao độ dọc tuyến (ví dụ 100m, 250m, 500m)"/>
+                                    </Grid>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Chiều cao chữ (CAD Units):" VerticalAlignment="Center" Foreground="#475569"/>
+                                        <TextBox x:Name="txtTextHeight" Grid.Column="1" Text="2.0" Height="26" VerticalContentAlignment="Center" ToolTip="Chiều cao chữ nhãn cao độ"/>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Làm mịn Spline -->
+                        <CheckBox x:Name="chkSmoothing" Content="Làm mượt đường cong tự nhiên (Spline Curve Fit) giúp đường đồng mức uốn lượn mềm mại" IsChecked="True" Foreground="#334155"/>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="#F1F5F9" CornerRadius="6" Padding="12,10" Margin="0,10,0,0">
+            <DockPanel LastChildFill="False">
+                <TextBlock x:Name="txtStatus" Text="Sẵn sàng tạo đồng mức." VerticalAlignment="Center" Foreground="#64748B" FontSize="12" DockPanel.Dock="Left"/>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                    <Button Content="Đóng" Width="90" Height="34" Margin="0,0,10,0" Background="#CBD5E1" Foreground="#334155" FontWeight="SemiBold" BorderThickness="0" Click="BtnClose_Click" Cursor="Hand"/>
+                    <Button x:Name="btnExecute" Content="🏔️ Bắt Đầu Tạo Đồng Mức" Width="190" Height="34" Background="#0284C7" Foreground="White" FontWeight="Bold" BorderThickness="0" Click="BtnExecute_Click" Cursor="Hand"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

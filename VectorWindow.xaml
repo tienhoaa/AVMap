@@ -1,0 +1,204 @@
+<Window x:Class="AVMap.VectorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Bóc Tách Bình Đồ Vector GIS &amp; Nhà Dân (VN-2000) - AVMap" 
+        Height="730" Width="720"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="NoResize"
+        Background="#F8FAFC"
+        FontFamily="Segoe UI" FontSize="13">
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0F172A" CornerRadius="8" Padding="16,12" Margin="0,0,0,12">
+            <DockPanel LastChildFill="False">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                    <TextBlock Text="🗺️" FontSize="26" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="BÓC TÁCH BÌNH ĐỒ VECTOR GIS &amp; NHÀ DÂN" FontWeight="Bold" FontSize="15" Foreground="White"/>
+                        <TextBlock Text="Trích xuất tim đường, nhà dân nông thôn / đô thị, ao hồ, bờ nước chuẩn tọa độ VN-2000" FontSize="12" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+                <Border DockPanel.Dock="Right" Background="#1E293B" CornerRadius="4" Padding="10,6" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Hệ tọa độ: " Foreground="#94A3B8" FontSize="12"/>
+                        <TextBlock x:Name="lblActiveCrs" Text="VN-2000" FontWeight="Bold" Foreground="#38BDF8" FontSize="12"/>
+                    </StackPanel>
+                </Border>
+            </DockPanel>
+        </Border>
+
+        <!-- Main Body -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Group 1: Phạm vi vùng bóc tách -->
+                <GroupBox Header=" 1. Phạm vi vùng bóc tách bình đồ " FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12" Padding="12">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="btnPick2Points" Grid.Column="0" Content="📐 Quét 2 Điểm Góc (Hình Chữ Nhật)" Height="36" Background="#0284C7" Foreground="White" FontWeight="Bold" BorderThickness="0" Click="BtnPick2Points_Click" Cursor="Hand"/>
+                            <Button x:Name="btnPickPolyline" Grid.Column="2" Content="⬡ Chọn Polyline Ranh Giới Sẵn Có" Height="36" Background="#E2E8F0" Foreground="#1E293B" FontWeight="SemiBold" BorderThickness="0" Click="BtnPickPolyline_Click" Cursor="Hand"/>
+                        </Grid>
+
+                        <Border Background="#F1F5F9" CornerRadius="6" Padding="10" Margin="0,4,0,0">
+                            <StackPanel>
+                                <TextBlock x:Name="txtAreaDimensions" Text="Khu vực: Chưa chọn phạm vi (Vui lòng quét 2 điểm hoặc chọn ranh Polyline)" FontWeight="Bold" FontSize="12.5" Foreground="#0369A1"/>
+                                <TextBlock x:Name="txtAreaCoords" Text="Tọa độ: X=[...] Y=[...]" FontSize="11.5" Foreground="#64748B" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Group 2: Các lớp đối tượng cần trích xuất -->
+                <GroupBox Header=" 2. Các lớp đối tượng cần trích xuất " FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12" Padding="12">
+                    <StackPanel>
+                        <!-- Giao thông -->
+                        <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,8">
+                            <CheckBox x:Name="chkRoads" IsChecked="True">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="12" Height="12" Background="#EAB308" CornerRadius="2" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Mạng lưới giao thông (Quốc lộ, Tỉnh lộ, Đường liên thôn, ngõ hẻm kèm Tên đường)" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </CheckBox>
+                        </Border>
+
+                        <!-- Nhà dân & Tòa nhà -->
+                        <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,8">
+                            <StackPanel>
+                                <CheckBox x:Name="chkBuildings" IsChecked="True">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="12" Height="12" Background="#F97316" CornerRadius="2" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Khối nhà &amp; Công trình kiến trúc (Footprints)" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </CheckBox>
+                                
+                                <Border Background="#FEF3C7" BorderBrush="#FDE68A" BorderThickness="1" CornerRadius="4" Padding="8,6" Margin="24,6,0,0">
+                                    <CheckBox x:Name="chkAiHouses" Content="Tải trọn vẹn Nhà Dân nông thôn &amp; đô thị từ nguồn AI Vệ tinh (Microsoft Building Footprints)" IsChecked="True" FontWeight="SemiBold" Foreground="#92400E"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Sông ngòi ao hồ -->
+                        <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,8">
+                            <CheckBox x:Name="chkWater" IsChecked="True">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="12" Height="12" Background="#06B6D4" CornerRadius="2" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Mặt nước thủy hệ (Sông, suối, kênh mương, ao hồ, đầm phá)" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </CheckBox>
+                        </Border>
+
+                        <!-- Hàng rào & Tường bao -->
+                        <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,8">
+                            <CheckBox x:Name="chkBarriers" IsChecked="True">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="12" Height="12" Background="#84CC16" CornerRadius="2" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Ranh giới hàng rào, tường bao khuôn viên đất" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </CheckBox>
+                        </Border>
+
+                        <!-- POI & Địa danh -->
+                        <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="10">
+                            <CheckBox x:Name="chkPoi" IsChecked="True">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="12" Height="12" Background="#8B5CF6" CornerRadius="2" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Tên địa danh, Trường học, Bệnh viện, UBND, Trạm y tế, Chợ, Chùa (Nhãn POI)" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </CheckBox>
+                        </Border>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Group 3: Chế độ 2D / 3D & Ký hiệu số tầng -->
+                <GroupBox Header=" 3. Chế độ mô hình 2D / 3D &amp; Ký hiệu số tầng " FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12" Padding="12">
+                    <StackPanel>
+                        <!-- Tùy chọn 2D / 3D (Xếp dọc thoáng rộng) -->
+                        <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                            <StackPanel>
+                                <RadioButton x:Name="rbMode2D" Content="Mặt bằng phẳng 2D (Thickness = 0 - Chuẩn in ấn bản vẽ Layout)" IsChecked="True" FontWeight="SemiBold" Margin="0,0,0,8" Checked="RbMode_Changed" Unchecked="RbMode_Changed"/>
+                                <DockPanel Margin="0,0,0,0">
+                                    <RadioButton x:Name="rbMode3D" Content="Dựng khối hộp 3D (Đùn chiều cao tường, xem 3D Orbit)" VerticalAlignment="Center" Checked="RbMode_Changed" Unchecked="RbMode_Changed"/>
+                                    <StackPanel x:Name="pnl3DHeight" Orientation="Horizontal" Margin="20,0,0,0" Visibility="Collapsed">
+                                        <TextBlock Text="Chiều cao 1 tầng mặc định:" VerticalAlignment="Center" Foreground="#475569" Margin="0,0,6,0"/>
+                                        <TextBox x:Name="txt3DHeight" Text="3.5" Width="55" Height="24" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" ToolTip="Chiều cao 1 tầng mặc định (mét) khi đùn khối 3D"/>
+                                        <TextBlock Text="mét" VerticalAlignment="Center" Foreground="#475569" Margin="4,0,0,0"/>
+                                    </StackPanel>
+                                </DockPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Điền ký hiệu số tầng -->
+                        <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="10">
+                            <StackPanel>
+                                <CheckBox x:Name="chkAddFloorText" Content="Điền ký hiệu (G, G1, G2...) vào giữa tâm nhà" IsChecked="True" FontWeight="SemiBold" Margin="0,0,0,8" Checked="ChkAddFloorText_Changed" Unchecked="ChkAddFloorText_Changed"/>
+                                
+                                <StackPanel x:Name="pnlFloorSettings" Margin="20,0,0,0">
+                                    <!-- Quy tắc điền số tầng -->
+                                    <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="180"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Quy tắc điền số tầng:" VerticalAlignment="Center" Foreground="#475569"/>
+                                        <ComboBox x:Name="cboFloorMode" Grid.Column="1" Height="26">
+                                            <ComboBoxItem Content="Mặc định chữ &quot;G&quot; (Có sẵn tầng thì điền G1, G2... Còn lại kỹ sư tự điền)" IsSelected="True"/>
+                                            <ComboBoxItem Content="AI tự động phân tích &amp; điền số tầng theo diện tích mái (G1, G2, G3...)"/>
+                                            <ComboBoxItem Content="Toàn bộ nhà dân chưa có tầng là G1 (Nhà 1 tầng / Cấp 4)"/>
+                                            <ComboBoxItem Content="Toàn bộ nhà dân chưa có tầng là G2 (Nhà 2 tầng)"/>
+                                            <ComboBoxItem Content="Toàn bộ nhà dân chưa có tầng là G3 (Nhà 3 tầng)"/>
+                                        </ComboBox>
+                                    </Grid>
+
+                                    <!-- Định dạng ký hiệu tiền tố -->
+                                    <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="180"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Định dạng tiền tố:" VerticalAlignment="Center" Foreground="#475569"/>
+                                        <ComboBox x:Name="cboFloorPrefix" Grid.Column="1" Height="26">
+                                            <ComboBoxItem Content="Dạng chữ &quot;G&quot; (G, G1, G2, G3... - Chuẩn trắc địa VN)" IsSelected="True"/>
+                                            <ComboBoxItem Content="Dạng chữ &quot;T&quot; (G, 1T, 2T, 3T... - Số tầng)"/>
+                                        </ComboBox>
+                                    </Grid>
+
+                                    <!-- Chiều cao chữ -->
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="180"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Chiều cao chữ (CAD Units):" VerticalAlignment="Center" Foreground="#475569"/>
+                                        <TextBox x:Name="txtFloorTextHeight" Grid.Column="1" Text="1.5" Height="26" VerticalContentAlignment="Center" ToolTip="Chiều cao chữ ghi số tầng ở tâm nhà"/>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="#F1F5F9" CornerRadius="6" Padding="12,10" Margin="0,10,0,0">
+            <DockPanel LastChildFill="False">
+                <TextBlock x:Name="txtStatus" Text="Sẵn sàng bóc tách bình đồ." VerticalAlignment="Center" Foreground="#64748B" FontSize="12" DockPanel.Dock="Left"/>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                    <Button Content="Đóng" Width="90" Height="34" Margin="0,0,10,0" Background="#CBD5E1" Foreground="#334155" FontWeight="SemiBold" BorderThickness="0" Click="BtnClose_Click" Cursor="Hand"/>
+                    <Button x:Name="btnExecute" Content="🗺️ Bắt Đầu Bóc Tách" Width="180" Height="34" Background="#0284C7" Foreground="White" FontWeight="Bold" BorderThickness="0" Click="BtnExecute_Click" Cursor="Hand"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
