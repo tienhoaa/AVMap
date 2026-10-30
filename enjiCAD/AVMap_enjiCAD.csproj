@@ -76,6 +76,13 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="..\UpdateService.cs" Link="UpdateService.cs" />
+    <Compile Include="..\ToastNotificationWindow.xaml.cs" Link="ToastNotificationWindow.xaml.cs">
+      <DependentUpon>ToastNotificationWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="..\ToastNotificationWindow.xaml" Link="ToastNotificationWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Compile Include="..\UpdateWindow.xaml.cs" Link="UpdateWindow.xaml.cs">
       <DependentUpon>UpdateWindow.xaml</DependentUpon>
     </Compile>

@@ -22,7 +22,8 @@ namespace AVMap
                 lblVersionCompare.Text = $"Phiên bản hiện tại: v{UpdateService.CurrentVersion} (Mới nhất)";
                 txtBadge.Text = "MỚI NHẤT";
                 txtBadge.Foreground = new SolidColorBrush(Color.FromRgb(52, 211, 153));
-                btnUpdateNow.Content = "⚡ Cập Nhật / Làm Mới File";
+                btnUpdateNow.Visibility = Visibility.Collapsed;
+                btnLater.Content = "Đóng";
             }
             else
             {
@@ -31,7 +32,9 @@ namespace AVMap
                 lblVersionCompare.Text = $"Phiên bản mới: v{_info.NewVersion}  •  Bản đang dùng: v{UpdateService.CurrentVersion}";
                 txtBadge.Text = "CÓ BẢN MỚI";
                 txtBadge.Foreground = new SolidColorBrush(Color.FromRgb(52, 211, 153));
+                btnUpdateNow.Visibility = Visibility.Visible;
                 btnUpdateNow.Content = "⚡ Cập Nhật Tự Động Ngay";
+                btnLater.Content = "Để Sau";
             }
 
             txtChangeLog.Text = _info.ChangeLogText;

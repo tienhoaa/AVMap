@@ -53,7 +53,7 @@
 
         <!-- Bottom Actions -->
         <DockPanel Grid.Row="3" Margin="0,15,0,0" LastChildFill="False">
-            <Button Content="Để Sau" Width="100" Height="36" Background="#E2E8F0" BorderThickness="0" 
+            <Button x:Name="btnLater" Content="Để Sau" Width="100" Height="36" Background="#E2E8F0" BorderThickness="0" 
                     FontWeight="SemiBold" Cursor="Hand" Click="BtnLater_Click"/>
             <Button x:Name="btnUpdateNow" Content="⚡ Cập Nhật Tự Động Ngay" Width="220" Height="36" DockPanel.Dock="Right"
                     Background="#16A34A" Foreground="White" FontWeight="Bold" BorderThickness="0" 

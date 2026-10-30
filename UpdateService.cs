@@ -21,7 +21,8 @@ namespace AVMap
 
     public static class UpdateService
     {
-        public const string CurrentVersion = "1.2.0";
+        // Đặt 1.1.0 để thử nghiệm kích hoạt popup cập nhật lên 1.2.0 sau khi NETLOAD
+        public const string CurrentVersion = "1.1.0";
         private const string VersionCheckUrl = "https://raw.githubusercontent.com/tienhoaa/AVMap/main/version.json";
         private static bool _hasNotifiedThisSession = false;
 
@@ -43,7 +44,7 @@ namespace AVMap
 
                 if (string.IsNullOrWhiteSpace(json))
                 {
-                    // Du phong doc file version.json cuc bo neu khong co Internet
+                    // Dự phòng đọc file version.json cục bộ nếu máy tính tạm mất mạng
                     try
                     {
                         string localFile = Path.Combine(Path.GetDirectoryName(typeof(UpdateService).Assembly.Location), "version.json");
@@ -98,7 +99,7 @@ namespace AVMap
 
                 if (remoteVer > localVer)
                 {
-                    // 1. Cập nhật nút trên thanh Ribbon
+                    // 1. Cập nhật nút trên thanh Ribbon thành chuông thông báo
                     try
                     {
                         Type ribbonMgr = Type.GetType("AVMap.RibbonManager");
@@ -120,21 +121,38 @@ namespace AVMap
                                 WriteCadMessage($"\n    {line}");
                             }
                         }
-                        WriteCadMessage("\n  👉 Bấm nút [🔔 CÓ BẢN MỚI] trên Ribbon hoặc gõ lệnh AVUPDATE để cập nhật!");
+                        WriteCadMessage("\n  👉 Bấm vào thông báo ở góc màn hình hoặc nút [🔔 CÓ BẢN MỚI] trên Ribbon để cập nhật!");
                         WriteCadMessage("\n================================================================================\n");
                     }
 
-                    if (isManualCheck)
+                    if (!isManualCheck)
                     {
+                        // SAU KHI NETLOAD: HIỆN POPUP Ở GÓC DƯỚI BÊN PHẢI MÀN HÌNH
+                        ShowToastNotification(info);
+                    }
+                    else
+                    {
+                        // Người dùng bấm thủ công trên Ribbon: Mở bảng cập nhật đầy đủ
                         SafeShowModal(new UpdateWindow(info));
                     }
                 }
                 else
                 {
-                    // Đã là phiên bản mới nhất
-                    if (isManualCheck)
+                    // ĐÃ LÀ BẢN MỚI NHẤT:
+                    if (!isManualCheck)
                     {
-                        SafeShowModal(new UpdateWindow(info));
+                        // SAU KHI NETLOAD: ĐÃ LÀ MỚI NHẤT THÌ KHỎI! Không hiện bất kỳ popup nào!
+                        return;
+                    }
+                    else
+                    {
+                        // Người dùng tự tay bấm "Kiểm Tra Cập Nhật" trên Ribbon:
+                        // Chỉ thông báo đã là mới nhất kèm nút Đóng, KHÔNG CÓ NÚT CẬP NHẬT
+                        Forms.MessageBox.Show(
+                            $"Bạn đang sử dụng phiên bản AVMap v{CurrentVersion} (Mới nhất).\n\nHệ thống đã được cập nhật đầy đủ, không có bản cập nhật nào mới.",
+                            "AVMap - Kiểm Tra Cập Nhật",
+                            Forms.MessageBoxButtons.OK,
+                            Forms.MessageBoxIcon.Information);
                     }
                 }
             }
@@ -151,12 +169,68 @@ namespace AVMap
             }
         }
 
+        public static void ShowToastNotification(UpdateInfo info)
+        {
+            try
+            {
+                Action showAction = () =>
+                {
+                    try
+                    {
+                        var toast = new ToastNotificationWindow(info);
+                        toast.Show();
+                    }
+                    catch { }
+                };
+
+                var disp = GetUiDispatcher();
+                if (disp != null && !disp.CheckAccess())
+                {
+                    disp.BeginInvoke(showAction);
+                }
+                else
+                {
+                    showAction();
+                }
+            }
+            catch { }
+        }
+
+        private static System.Windows.Threading.Dispatcher GetUiDispatcher()
+        {
+            try
+            {
+                Type compMgr = Type.GetType("Autodesk.Windows.ComponentManager, AdWindows");
+                if (compMgr != null)
+                {
+                    object ribbon = compMgr.GetProperty("Ribbon")?.GetValue(null, null);
+                    if (ribbon is System.Windows.Threading.DispatcherObject dObj)
+                    {
+                        return dObj.Dispatcher;
+                    }
+                }
+            }
+            catch { }
+
+            if (System.Windows.Application.Current != null)
+            {
+                return System.Windows.Application.Current.Dispatcher;
+            }
+
+            return null;
+        }
+
         private static Version ParseVersion(string v)
         {
             if (string.IsNullOrEmpty(v)) return new Version(1, 0, 0);
             v = v.TrimStart('v', 'V');
             if (Version.TryParse(v, out Version res)) return res;
             return new Version(1, 0, 0);
+        }
+
+        public static void ShowModalDialog(Window win)
+        {
+            SafeShowModal(win);
         }
 
         public static void ExecuteUpdatePipeline(UpdateInfo info)
