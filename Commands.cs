@@ -118,6 +118,9 @@ namespace AVMap
         {
             try
             {
+                // Reset danh sách lịch sử hệ tọa độ gần đây theo từng phiên NETLOAD
+                VN2000Catalog.ResetSessionRecent();
+
                 // FILEDIA & CMDDIA Guardian: Tự động phát hiện và khôi phục hộp thoại Open/Save nếu bị tắt về 0
                 Autodesk.AutoCAD.ApplicationServices.Application.SetSystemVariable("FILEDIA", 1);
                 Autodesk.AutoCAD.ApplicationServices.Application.SetSystemVariable("CMDDIA", 1);

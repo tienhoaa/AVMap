@@ -76,7 +76,7 @@ set PATH=C:\Program Files\Git\cmd;C:\Program Files\Git\bin;C:\Program Files\GitH
 
 gh repo edit tienhoaa/AVMap --visibility public --accept-visibility-change-consequences >nul 2>&1
 
-set "CUR_VER=v1.2.0"
+set "CUR_VER=v1.3.0"
 for /f "tokens=2 delims=:," %%a in ('findstr /i "\"version\"" version.json') do (
     set "RAW_VER=%%a"
 )

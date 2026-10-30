@@ -58,8 +58,18 @@ namespace AVMap
                 foreach (var p in allProvinces) p.IsActive = false;
             }
 
-            // Nạp dữ liệu 2 bảng
-            dgRecent.ItemsSource = recentProvinces;
+            // Nạp dữ liệu 2 bảng: Bảng Lịch sử chỉ hiển thị nếu trong phiên hiện tại đã từng chọn hệ tọa độ
+            if (recentProvinces != null && recentProvinces.Count > 0)
+            {
+                pnlRecentSection.Visibility = Visibility.Visible;
+                dgRecent.ItemsSource = recentProvinces;
+            }
+            else
+            {
+                pnlRecentSection.Visibility = Visibility.Collapsed;
+                dgRecent.ItemsSource = null;
+            }
+
             dgCrs.ItemsSource = allProvinces;
 
             if (currentActiveCrs != null && matchedItem != null)
@@ -73,8 +83,11 @@ namespace AVMap
                 lblCurrentCrsBadge.Text = "✔ ĐANG SỬ DỤNG";
                 lblCurrentCrsBadge.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(22, 101, 52));
 
-                // Ưu tiên chọn trong bảng Recent nếu có
-                var recentMatch = recentProvinces.FirstOrDefault(r => r.EpsgCode == matchedItem.EpsgCode && Math.Abs(r.CentralMeridian - matchedItem.CentralMeridian) < 0.001);
+                // Ưu tiên chọn trong bảng Recent nếu có hiển thị
+                var recentMatch = (recentProvinces != null && recentProvinces.Count > 0) 
+                    ? recentProvinces.FirstOrDefault(r => r.EpsgCode == matchedItem.EpsgCode && Math.Abs(r.CentralMeridian - matchedItem.CentralMeridian) < 0.001) 
+                    : null;
+
                 if (recentMatch != null)
                 {
                     dgRecent.SelectedItem = recentMatch;
@@ -206,7 +219,15 @@ namespace AVMap
 
         private void SelectAndClose()
         {
-            ProvinceCrs crs = dgRecent.SelectedItem as ProvinceCrs ?? dgCrs.SelectedItem as ProvinceCrs;
+            ProvinceCrs crs = null;
+            if (pnlRecentSection != null && pnlRecentSection.Visibility == Visibility.Visible && dgRecent.SelectedItem != null)
+            {
+                crs = dgRecent.SelectedItem as ProvinceCrs;
+            }
+            if (crs == null && dgCrs != null)
+            {
+                crs = dgCrs.SelectedItem as ProvinceCrs;
+            }
 
             if (crs != null)
             {

@@ -110,64 +110,33 @@ namespace AVMap
 
         public static ProvinceCrs DefaultCrs => Provinces[0];
 
-        // ==================== QUẢN LÝ LỊCH SỬ HỆ TỌA ĐỘ ĐÃ DÙNG (RECENT CRS) ====================
-        private static string RecentCrsFilePath
+        // ==================== QUẢN LÝ LỊCH SỬ HỆ TỌA ĐỘ ĐÃ DÙNG (RECENT CRS - THEO PHIÊN NETLOAD) ====================
+        // Chỉ lưu trong RAM theo phiên NETLOAD hiện tại, mỗi lần NETLOAD sẽ tự động reset về rỗng
+        private static readonly List<ProvinceCrs> _sessionRecent = new List<ProvinceCrs>();
+
+        public static void ResetSessionRecent()
         {
-            get
+            try
             {
-                try
+                lock (_sessionRecent)
                 {
-                    string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AVMap");
-                    if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
-                    return Path.Combine(folder, "recent_crs.json");
+                    _sessionRecent.Clear();
                 }
-                catch
-                {
-                    return Path.Combine(Path.GetTempPath(), "avmap_recent_crs.json");
-                }
+
+                // Xóa file rác cũ nếu từng tồn tại trên đĩa
+                string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AVMap");
+                string file = Path.Combine(folder, "recent_crs.json");
+                if (File.Exists(file)) File.Delete(file);
             }
+            catch { }
         }
 
         public static List<ProvinceCrs> GetRecentProvinces()
         {
-            try
+            lock (_sessionRecent)
             {
-                string path = RecentCrsFilePath;
-                if (File.Exists(path))
-                {
-                    string json = File.ReadAllText(path);
-                    var list = JsonConvert.DeserializeObject<List<ProvinceCrs>>(json);
-                    if (list != null && list.Count > 0)
-                    {
-                        // Đồng bộ lại đối tượng từ danh mục để đảm bảo tính chuẩn xác
-                        var result = new List<ProvinceCrs>();
-                        foreach (var item in list)
-                        {
-                            var matched = Provinces.FirstOrDefault(p => p.EpsgCode == item.EpsgCode && 
-                                          Math.Abs(p.CentralMeridian - item.CentralMeridian) < 0.001 &&
-                                          Math.Abs(p.ScaleFactor - item.ScaleFactor) < 0.0001);
-                            if (matched != null)
-                            {
-                                if (!result.Contains(matched)) result.Add(matched);
-                            }
-                            else
-                            {
-                                if (!result.Any(r => r.Name == item.Name)) result.Add(item);
-                            }
-                        }
-                        return result;
-                    }
-                }
+                return _sessionRecent.ToList();
             }
-            catch { }
-
-            // Mặc định ban đầu nếu chưa có lịch sử: gợi ý 3 hệ phổ biến nhất (TP.HCM, Hà Nội, Múi 6° 48N)
-            return new List<ProvinceCrs>
-            {
-                Provinces[0], // TP.HCM (Mới)
-                Provinces[1], // Hà Nội
-                Provinces.FirstOrDefault(p => p.EpsgCode == 3405) ?? Provinces[2] // Múi 6° 48N
-            };
         }
 
         public static void SaveToRecent(ProvinceCrs crs)
@@ -175,15 +144,17 @@ namespace AVMap
             if (crs == null) return;
             try
             {
-                var recentList = GetRecentProvinces();
-                recentList.RemoveAll(p => p.EpsgCode == crs.EpsgCode && 
-                                          Math.Abs(p.CentralMeridian - crs.CentralMeridian) < 0.001 &&
-                                          Math.Abs(p.ScaleFactor - crs.ScaleFactor) < 0.0001);
-                recentList.Insert(0, crs);
-                if (recentList.Count > 5) recentList = recentList.Take(5).ToList(); // Giữ tối đa 5 lịch sử gần nhất
-
-                string json = JsonConvert.SerializeObject(recentList, Formatting.Indented);
-                File.WriteAllText(RecentCrsFilePath, json);
+                lock (_sessionRecent)
+                {
+                    _sessionRecent.RemoveAll(p => p.EpsgCode == crs.EpsgCode && 
+                                                  Math.Abs(p.CentralMeridian - crs.CentralMeridian) < 0.001 &&
+                                                  Math.Abs(p.ScaleFactor - crs.ScaleFactor) < 0.0001);
+                    _sessionRecent.Insert(0, crs);
+                    if (_sessionRecent.Count > 3) // Giữ tối đa 3 hệ đã dùng gần nhất trong phiên
+                    {
+                        _sessionRecent.RemoveRange(3, _sessionRecent.Count - 3);
+                    }
+                }
             }
             catch { }
         }

@@ -45,19 +45,19 @@
             </DockPanel>
         </Border>
 
-        <!-- 2: BẢNG 1: LỊCH SỬ / ĐÃ SỬ DỤNG GẦN ĐÂY (RECENTLY USED) -->
-        <Border Grid.Row="2" Background="White" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,10">
+        <!-- 2: BẢNG 1: LỊCH SỬ / ĐÃ SỬ DỤNG GẦN ĐÂY (RECENTLY USED - THEO PHIÊN NETLOAD) -->
+        <Border Grid.Row="2" x:Name="pnlRecentSection" Visibility="Collapsed" Background="White" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,10">
             <StackPanel>
                 <DockPanel Margin="2,0,2,6">
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                         <TextBlock Text="🕒" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                        <TextBlock Text="HỆ TỌA ĐỘ ĐÃ SỬ DỤNG GẦN ĐÂY (LỊCH SỬ)" FontWeight="Bold" FontSize="12" Foreground="#0369A1"/>
+                        <TextBlock Text="HỆ TỌA ĐỘ ĐÃ SỬ DỤNG GẦN ĐÂY (TRONG PHIÊN NÀY)" FontWeight="Bold" FontSize="12" Foreground="#0369A1"/>
                     </StackPanel>
-                    <TextBlock Text="(Click đúp để chọn ngay)" FontStyle="Italic" FontSize="11" Foreground="#64748B" DockPanel.Dock="Right"/>
+                    <TextBlock Text="(Click đúp để chọn nhanh)" FontStyle="Italic" FontSize="11" Foreground="#64748B" DockPanel.Dock="Right"/>
                 </DockPanel>
 
                 <DataGrid x:Name="dgRecent" AutoGenerateColumns="False" IsReadOnly="True"
-                          MaxHeight="125" SelectionMode="Single" HeadersVisibility="Column"
+                          MaxHeight="95" SelectionMode="Single" HeadersVisibility="Column"
                           GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F1F5F9"
                           RowBackground="White" AlternatingRowBackground="#F8FAFC"
                           BorderThickness="1" BorderBrush="#E2E8F0"

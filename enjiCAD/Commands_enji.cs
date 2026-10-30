@@ -66,6 +66,9 @@ namespace AVMap.Enji
         {
             try
             {
+                // Reset danh sách lịch sử hệ tọa độ gần đây theo từng phiên NETLOAD
+                VN2000Catalog.ResetSessionRecent();
+
                 var ed = CadApp.DocumentManager.MdiActiveDocument?.Editor;
                 ed?.WriteMessage("\n=======================================================");
                 ed?.WriteMessage("\n  AVMap - Bản Đồ Nền & GIS cho enjiCAD 2026!");
