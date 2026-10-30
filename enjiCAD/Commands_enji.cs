@@ -84,6 +84,13 @@ namespace AVMap.Enji
                     CadApp.Idle -= ShowWelcomeOnIdle;
                     CadApp.Idle += ShowWelcomeOnIdle;
                 }
+
+                // Kiểm tra cập nhật ngầm sau khi enjiCAD nạp xong (sau 3s)
+                System.Threading.Tasks.Task.Run(async () =>
+                {
+                    await System.Threading.Tasks.Task.Delay(3000);
+                    await UpdateService.CheckUpdateAsync(false);
+                });
             }
             catch { }
         }
@@ -310,6 +317,14 @@ namespace AVMap.Enji
                 var ed = CadApp.DocumentManager.MdiActiveDocument?.Editor;
                 ed?.WriteMessage($"\n[AVMap Lỗi]: {ex.Message}");
             }
+        }
+
+        [CommandMethod("AVUPDATE")]
+        [CommandMethod("AVCHECKUPDATE")]
+        [CommandMethod("AVCAPNHAT")]
+        public async void UpdateCommand()
+        {
+            await UpdateService.CheckUpdateAsync(true);
         }
     }
 }

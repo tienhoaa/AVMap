@@ -179,7 +179,8 @@ namespace AVMapUpdater
                     using (WebClient client = new WebClient())
                     {
                         client.Headers.Add("User-Agent", "AVMap-FastUpdater");
-                        jsonContent = await client.DownloadStringTaskAsync(new Uri(_versionUrl));
+                        string cacheBusterUrl = _versionUrl.Contains("?") ? $"{_versionUrl}&t={DateTime.UtcNow.Ticks}" : $"{_versionUrl}?t={DateTime.UtcNow.Ticks}";
+                        jsonContent = await client.DownloadStringTaskAsync(new Uri(cacheBusterUrl));
                     }
                 }
                 catch (Exception ex)

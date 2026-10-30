@@ -21,8 +21,40 @@ namespace AVMap
 
     public static class UpdateService
     {
-        // Đặt 1.1.0 để thử nghiệm kích hoạt popup cập nhật lên 1.2.0 sau khi NETLOAD
-        public const string CurrentVersion = "1.1.0";
+        public static string CurrentVersion
+        {
+            get
+            {
+                try
+                {
+                    // 1. Đọc trực tiếp từ file version.json trong thư mục netload của DLL
+                    string dir = Path.GetDirectoryName(typeof(UpdateService).Assembly.Location);
+                    string localVerFile = Path.Combine(dir, "version.json");
+                    if (File.Exists(localVerFile))
+                    {
+                        string jText = File.ReadAllText(localVerFile);
+                        var jObj = Newtonsoft.Json.Linq.JObject.Parse(jText);
+                        string v = (string)jObj["version"];
+                        if (!string.IsNullOrEmpty(v)) return v.Trim();
+                    }
+                }
+                catch { }
+
+                try
+                {
+                    // 2. Dự phòng đọc từ Assembly Version
+                    var ver = typeof(UpdateService).Assembly.GetName().Version;
+                    if (ver != null && (ver.Major > 1 || (ver.Major == 1 && ver.Minor > 0)))
+                    {
+                        return $"{ver.Major}.{ver.Minor}.{ver.Build}";
+                    }
+                }
+                catch { }
+
+                return "1.2.0";
+            }
+        }
+
         private const string VersionCheckUrl = "https://raw.githubusercontent.com/tienhoaa/AVMap/main/version.json";
         private static bool _hasNotifiedThisSession = false;
 
@@ -37,7 +69,9 @@ namespace AVMap
                     {
                         client.Timeout = TimeSpan.FromSeconds(4);
                         client.DefaultRequestHeaders.Add("User-Agent", "AVMap-Client");
-                        json = await client.GetStringAsync(VersionCheckUrl);
+                        // Thêm timestamp để chống bộ nhớ đệm (cache) của GitHub CDN
+                        string checkUrl = $"{VersionCheckUrl}?t={DateTime.UtcNow.Ticks}";
+                        json = await client.GetStringAsync(checkUrl);
                     }
                 }
                 catch { }
@@ -99,10 +133,19 @@ namespace AVMap
 
                 if (remoteVer > localVer)
                 {
-                    // 1. Cập nhật nút trên thanh Ribbon thành chuông thông báo
+                    // 1. Cập nhật nút trên thanh Ribbon thành chuông thông báo (hỗ trợ cả AutoCAD và enjiCAD)
                     try
                     {
-                        Type ribbonMgr = Type.GetType("AVMap.RibbonManager");
+                        Type ribbonMgr = Type.GetType("AVMap.RibbonManager") ??
+                                         Type.GetType("AVMap.Enji.RibbonManager_enji");
+                        if (ribbonMgr == null)
+                        {
+                            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                            {
+                                var t = asm.GetType("AVMap.RibbonManager") ?? asm.GetType("AVMap.Enji.RibbonManager_enji");
+                                if (t != null) { ribbonMgr = t; break; }
+                            }
+                        }
                         ribbonMgr?.GetMethod("SetUpdateNotification")?.Invoke(null, new object[] { info.NewVersion, info.ChangeLogText });
                     }
                     catch { }
@@ -173,25 +216,23 @@ namespace AVMap
         {
             try
             {
-                Action showAction = () =>
+                var thread = new System.Threading.Thread(() =>
                 {
                     try
                     {
                         var toast = new ToastNotificationWindow(info);
+                        toast.Closed += (s, e) =>
+                        {
+                            try { System.Windows.Threading.Dispatcher.CurrentDispatcher.InvokeShutdown(); } catch { }
+                        };
                         toast.Show();
+                        System.Windows.Threading.Dispatcher.Run();
                     }
                     catch { }
-                };
-
-                var disp = GetUiDispatcher();
-                if (disp != null && !disp.CheckAccess())
-                {
-                    disp.BeginInvoke(showAction);
-                }
-                else
-                {
-                    showAction();
-                }
+                });
+                thread.SetApartmentState(System.Threading.ApartmentState.STA);
+                thread.IsBackground = true;
+                thread.Start();
             }
             catch { }
         }
@@ -200,7 +241,16 @@ namespace AVMap
         {
             try
             {
-                Type compMgr = Type.GetType("Autodesk.Windows.ComponentManager, AdWindows");
+                Type compMgr = Type.GetType("Autodesk.Windows.ComponentManager, AdWindows") ??
+                               Type.GetType("Gssoft.Windows.ComponentManager, GdWindows");
+                if (compMgr == null)
+                {
+                    foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        var t = asm.GetType("Autodesk.Windows.ComponentManager") ?? asm.GetType("Gssoft.Windows.ComponentManager");
+                        if (t != null) { compMgr = t; break; }
+                    }
+                }
                 if (compMgr != null)
                 {
                     object ribbon = compMgr.GetProperty("Ribbon")?.GetValue(null, null);
@@ -305,6 +355,7 @@ namespace AVMap
                         name.StartsWith("gccoremgd", StringComparison.OrdinalIgnoreCase))
                     {
                         var t = asm.GetType("Autodesk.AutoCAD.ApplicationServices.Application") ??
+                                asm.GetType("Gssoft.Gscad.ApplicationServices.Application") ??
                                 asm.GetType("GrxCAD.ApplicationServices.Application");
                         if (t != null) return t;
                     }

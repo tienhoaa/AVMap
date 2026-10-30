@@ -19,11 +19,13 @@ namespace AVMap
             this.Loaded += (s, e) =>
             {
                 var workArea = SystemParameters.WorkArea;
-                this.Left = workArea.Right - this.ActualWidth - 20;
-                this.Top = workArea.Bottom - this.ActualHeight - 20;
+                double w = (this.ActualWidth > 50) ? this.ActualWidth : (this.Width > 50 ? this.Width : 380);
+                double h = (this.ActualHeight > 30) ? this.ActualHeight : (this.Height > 30 ? this.Height : 105);
+                this.Left = workArea.Right - w - 24;
+                this.Top = workArea.Bottom - h - 24;
 
                 _autoCloseTimer = new DispatcherTimer();
-                _autoCloseTimer.Interval = TimeSpan.FromSeconds(12);
+                _autoCloseTimer.Interval = TimeSpan.FromSeconds(15);
                 _autoCloseTimer.Tick += (ts, te) =>
                 {
                     _autoCloseTimer.Stop();
@@ -35,8 +37,16 @@ namespace AVMap
             this.MouseLeftButtonUp += (s, e) =>
             {
                 _autoCloseTimer?.Stop();
+                this.Hide();
+                try
+                {
+                    var win = new UpdateWindow(_info);
+                    win.Topmost = true;
+                    win.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                    win.ShowDialog();
+                }
+                catch { }
                 try { this.Close(); } catch { }
-                UpdateService.ShowModalDialog(new UpdateWindow(_info));
             };
         }
 
