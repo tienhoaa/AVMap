@@ -1,12 +1,12 @@
 {
-  "version": "1.2.0",
+  "version": "1.3.0",
   "releaseDate": "2026-10-30",
-  "title": "AVMap v1.2.0 - Cập Nhật Trực Quan & Trắc Địa",
+  "title": "AVMap v1.3.0 - Lịch Sử Hệ Tọa Độ & Cập Nhật 34 Tỉnh Mới Sau Sáp Nhập",
   "changeLog": [
+    "Tích hợp Bảng Lịch sử hệ tọa độ đã sử dụng gần đây (Recently Used), chọn lại siêu nhanh chỉ 1 click",
+    "Cập nhật chuẩn Kinh tuyến trục 34 tỉnh thành mới sau sáp nhập theo Thông tư 24/2025/TT-BTNMT",
+    "Hỗ trợ đầy đủ hệ tọa độ VN-2000 Múi chiếu 6 độ (TM-6 / UTM zone 48N & 49N)",
     "Thể hiện rõ Tỉnh thành / Hệ tọa độ VN-2000 đang áp dụng cho bản vẽ",
-    "Tách biệt hoàn toàn vệt đường xanh Street View khỏi bản đồ nền thông thường",
-    "Hỗ trợ xuất Block tĩnh, Dynamic Block và Block thuộc tính sang Google Earth KMZ",
-    "Tự động nhúng tọa độ GPS EXIF & góc nhìn vào ảnh chụp Street View",
     "Tự động cập nhật file mới siêu nhanh (chỉ tải DLL cần thiết, không cần tải lại file ZIP lớn)"
   ],
   "files_AutoCAD": [

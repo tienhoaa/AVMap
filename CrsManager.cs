@@ -67,6 +67,7 @@ namespace AVMap
         {
             if (crs == null) return;
             _memoryCrs = crs;
+            try { VN2000Catalog.SaveToRecent(crs); } catch { }
             if (doc == null) doc = Application.DocumentManager.MdiActiveDocument;
             if (doc == null) return;
 
