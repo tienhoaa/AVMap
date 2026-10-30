@@ -143,6 +143,13 @@ namespace AVMap
                     Autodesk.AutoCAD.ApplicationServices.Application.Idle -= ShowWelcomeOnIdle;
                     Autodesk.AutoCAD.ApplicationServices.Application.Idle += ShowWelcomeOnIdle;
                 }
+
+                // Kiểm tra cập nhật ngầm sau khi CAD nạp xong
+                System.Threading.Tasks.Task.Run(async () =>
+                {
+                    await System.Threading.Tasks.Task.Delay(3000);
+                    await UpdateService.CheckUpdateAsync(false);
+                });
             }
             catch { }
         }
@@ -449,6 +456,14 @@ namespace AVMap
                 var ed = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument?.Editor;
                 ed?.WriteMessage($"\n[AVMap Lỗi]: {ex.Message}");
             }
+        }
+
+        [CommandMethod("AVUPDATE")]
+        [CommandMethod("AVCHECKUPDATE")]
+        [CommandMethod("AVCAPNHAT")]
+        public async void UpdateCommand()
+        {
+            await UpdateService.CheckUpdateAsync(true);
         }
     }
 }

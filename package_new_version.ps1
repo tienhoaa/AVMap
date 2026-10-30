@@ -32,6 +32,16 @@ if (Test-Path (Join-Path $acadSrc "runtimes")) {
     Copy-Item (Join-Path $acadSrc "runtimes") $acadStage -Recurse -Force -ErrorAction SilentlyContinue
 }
 
+# Sao chep AVMapUpdater.exe va version.json vao goi AutoCAD
+$updaterExe = Join-Path $baseDir "Updater\bin\Release\net48\AVMapUpdater.exe"
+if (Test-Path $updaterExe) {
+    Copy-Item $updaterExe $acadStage -Force -ErrorAction SilentlyContinue
+}
+$versionFile = Join-Path $baseDir "version.json"
+if (Test-Path $versionFile) {
+    Copy-Item $versionFile $acadStage -Force -ErrorAction SilentlyContinue
+}
+
 $hdsdAcad = @"
 =================================================================================
 HUONG DAN SU DUNG BAN MOI TICH HOP AI STREET VIEW (AVMAP - AUTOCAD)
@@ -44,6 +54,10 @@ HUONG DAN SU DUNG BAN MOI TICH HOP AI STREET VIEW (AVMAP - AUTOCAD)
   3. Hoac neu muon dung file goc AVMap_AutoCAD.dll, vui long tat han AutoCAD roi chay lai BUILD_ALL.bat.
 
 * TINH NANG MOI:
+  - HE THONG TU DONG CAP NHAT 1-CLICK (FAST AUTO-UPDATER):
+    + Nguoi dung chi can giai nen bo cai lan dau tien!
+    + Cac lan cap nhat sau: Ngay sau khi NETLOAD hoac tren thanh Ribbon se co thong bao [🔔 CO BAN MOI].
+    + Khi bam cap nhat: Form cap nhat se tu dong dong CAD, chi tai DUY NHAT cac file can thiet (~600 KB sieu nhanh), ghi de truc tiep vao thu muc netload va mo lai AutoCAD ngay lap tuc!
   - THE HIEN RO TINH THANH / HE TOA DO DANG AP DUNG CHO BAN VE:
     + Hop thoai cai dat he toa do (lenh AVCRS) bo sung the thong tin mau xanh noi bat ngay tren dau.
     + Thong bao ro rang ten tinh thanh, kinh tuyen truc va trang thai [✔ DANG SU DUNG].
@@ -99,6 +113,14 @@ if (Test-Path (Join-Path $enjiSrc "AVMap_enjiCAD.deps.json")) {
 }
 if (Test-Path (Join-Path $enjiSrc "runtimes")) {
     Copy-Item (Join-Path $enjiSrc "runtimes") $enjiStage -Recurse -Force -ErrorAction SilentlyContinue
+}
+
+# Sao chep AVMapUpdater.exe va version.json vao goi enjiCAD
+if (Test-Path $updaterExe) {
+    Copy-Item $updaterExe $enjiStage -Force -ErrorAction SilentlyContinue
+}
+if (Test-Path $versionFile) {
+    Copy-Item $versionFile $enjiStage -Force -ErrorAction SilentlyContinue
 }
 
 $hdsdEnji = @"

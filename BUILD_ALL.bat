@@ -28,6 +28,17 @@ if %ERRORLEVEL% NEQ 0 (
 echo [THANH CONG] enjiCAD Build OK!
 echo.
 
+echo [*] Dang bien dich AVMap Auto-Updater (Release)...
+dotnet build Updater\AVMapUpdater.csproj -c Release > build_log_updater.txt 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo [LOI] Bien dich AVMapUpdater that bai! Xem chi tiet trong build_log_updater.txt
+    type build_log_updater.txt
+    pause
+    exit /b %ERRORLEVEL%
+)
+echo [THANH CONG] AVMap Auto-Updater Build OK!
+echo.
+
 echo [3/3] Dang dong goi Ban Moi vao thu muc rieng biet (TUYET DOI KHONG DE LEN BAN CU)...
 powershell -NoProfile -ExecutionPolicy Bypass -File package_new_version.ps1 > build_log_package.txt 2>&1
 type build_log_package.txt

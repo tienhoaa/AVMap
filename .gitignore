@@ -5,8 +5,13 @@ obj/
 [Oo]bj/
 
 ## Release & Deployment packages
-BAN_GIAO_*/
+BAN_GIAO_AUTOCAD/
+BAN_GIAO_ENJICAD/
 *.zip
+
+## Giữ lại thư mục bản mới để cập nhật trực tiếp qua GitHub
+!BAN_GIAO_AVMAP_BAN_MOI_AI/
+!BAN_GIAO_AVMAP_BAN_MOI_AI/**
 
 ## Visual Studio & IDE files
 .vs/

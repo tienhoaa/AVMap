@@ -1,0 +1,24 @@
+{
+  "version": "1.2.0",
+  "releaseDate": "2026-10-30",
+  "title": "AVMap v1.2.0 - Cập Nhật Trực Quan & Trắc Địa",
+  "changeLog": [
+    "Thể hiện rõ Tỉnh thành / Hệ tọa độ VN-2000 đang áp dụng cho bản vẽ",
+    "Tách biệt hoàn toàn vệt đường xanh Street View khỏi bản đồ nền thông thường",
+    "Hỗ trợ xuất Block tĩnh, Dynamic Block và Block thuộc tính sang Google Earth KMZ",
+    "Tự động nhúng tọa độ GPS EXIF & góc nhìn vào ảnh chụp Street View",
+    "Tự động cập nhật file mới siêu nhanh (chỉ tải DLL cần thiết, không cần tải lại file ZIP lớn)"
+  ],
+  "files_AutoCAD": [
+    {
+      "name": "AVMap_AutoCAD.dll",
+      "url": "https://raw.githubusercontent.com/tienhoaa/AVMap/main/BAN_GIAO_AVMAP_BAN_MOI_AI/AutoCAD/AVMap_AutoCAD.dll"
+    }
+  ],
+  "files_enjiCAD": [
+    {
+      "name": "AVMap_enjiCAD.dll",
+      "url": "https://raw.githubusercontent.com/tienhoaa/AVMap/main/BAN_GIAO_AVMAP_BAN_MOI_AI/enjiCAD/AVMap_enjiCAD.dll"
+    }
+  ]
+}

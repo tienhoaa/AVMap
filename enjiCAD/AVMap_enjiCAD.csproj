@@ -75,6 +75,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="..\UpdateService.cs" Link="UpdateService.cs" />
+    <Compile Include="..\UpdateWindow.xaml.cs" Link="UpdateWindow.xaml.cs">
+      <DependentUpon>UpdateWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="..\UpdateWindow.xaml" Link="UpdateWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <EmbeddedResource Include="..\Icons\*.png" Link="Icons\%(Filename)%(Extension)" />
     <EmbeddedResource Include="vn_building_tiles.json" />
   </ItemGroup>

@@ -30,6 +30,11 @@
 * **Đường Đồng Mức (`AVCONTOUR`):** Tải dữ liệu độ cao vệ tinh toàn cầu (DEM) và sinh đường đồng mức có gắn cao độ Elevation Z.
 * **Chèn Ảnh Bay Chụp Ortho (`AVINSERTORTHO`):** Chèn ảnh trực giao Flycam/UAV (TIF, GeoTIFF, ECW, PNG, JPG) kèm World File (TFW, JGW).
 
+### 6. ⚡ Tự Động Cập Nhật 1-Click (Fast Auto-Updater)
+* Người dùng chỉ cần giải nén bộ cài một lần duy nhất lúc ban đầu.
+* Khi có phiên bản mới, ngay sau khi `NETLOAD` hoặc trên thanh Ribbon sẽ xuất hiện thông báo `[🔔 CÓ BẢN MỚI]`.
+* Nhấp cập nhật: Trình cập nhật tự động đóng CAD, tải DUY NHẤT các file thay đổi (~600 KB siêu nhanh) thay vì tải lại toàn bộ file ZIP, ghi đè trực tiếp vào thư mục cài đặt và tự động mở lại AutoCAD.
+
 ---
 
 ## 🛠️ Hướng Dẫn Biên Dịch & Cài Đặt

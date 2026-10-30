@@ -1,0 +1,32 @@
+================================================================================
+   HƯỚNG DẪN CÀI ĐẶT & SỬ DỤNG AVMAP CHO AUTOCAD (BẢN CHÍNH THỨC)
+================================================================================
+
+1. CÁCH NẠP VÀ SỬ DỤNG TRÊN AUTOCAD:
+- Bước 1: Mở phần mềm AutoCAD (hỗ trợ từ AutoCAD 2018 đến 2025+).
+- Bước 2: Tại dòng lệnh Command Line của AutoCAD, gõ:
+          NETLOAD  -> Nhấn Enter.
+- Bước 3: Tìm đến thư mục này, chọn DUY NHẤT file:
+          AVMap_AutoCAD.dll  -> Bấm [Open].
+- Kết quả: 
+  + Hộp thoại HƯỚNG DẪN SỬ DỤNG AVMAP hiện lên ngay lập tức trên màn hình với đầy đủ hướng dẫn và danh sách phím tắt.
+  + Thanh Ribbon [AVMap] tự động xuất hiện trên thanh công cụ với các nút bấm trực quan.
+
+2. CÁC PHÍM LỆNH THƯỜNG DÙNG:
+- AVHELP (hoặc AVHD): Mở Bảng Hướng Dẫn Sử Dụng & Tra Cứu Phím Tắt bất cứ lúc nào.
+- AVCRS: Cài đặt Hệ tọa độ & Kinh tuyến trục VN-2000 cho bản vẽ (Hà Nội, TP.HCM, Thủ Đức, Gia Lai 108°30', Huế,...).
+- AVMAPON: Bật bản đồ nền vệ tinh Google Maps thời gian thực (tự động nạp theo góc nhìn).
+- AVMAPOFF: Tắt / ẩn bản đồ nền làm sạch bản vẽ.
+- AVMAPTYPE: Đổi kiểu bản đồ (Vệ tinh, Giao thông, Địa hình, Hybrid).
+- AVGETVECTORDATA: Bóc tách bình đồ vector (nhà cửa 2D/3D kèm nhãn tầng G, tim đường, ranh thửa,...).
+- AVCONTOUR: Quét vùng tự động sinh đường đồng mức cao độ Z từ DEM toàn cầu.
+- AVSTREETVIEW: Click chuột vào tim đường để xem ảnh 360° thực tế đồng bộ CAD (kèm tính năng AI xóa sạch logo Google & chữ bản quyền, tạo ảnh hiện trường chân thực phục vụ báo cáo khảo sát).
+- AVEXPORTKMZ / AVIMPORTKMZ: Đồng bộ hai chiều với Google Earth.
+- AVCLEAN: Quét dọn sạch sẽ toàn bộ file tạm và giải phóng ổ cứng (Cache = 0 MB).
+- AVFIX: Khôi phục lại hộp thoại mở/lưu file CAD nếu bị mất (FILEDIA = 1).
+
+3. LƯU Ý KHI COPY GỬI CHO NGƯỜI KHÁC:
+- Hãy gửi file nén [AVMap_Cho_AutoCAD.zip] hoặc NGUYÊN THƯ MỤC này cho người nhận.
+- Người nhận chỉ cần giải nén ra thư mục bất kỳ trên máy tính, mở AutoCAD gõ NETLOAD và chọn file [AVMap_AutoCAD.dll].
+- Máy tính cần kết nối Internet để tải ảnh vệ tinh và bản đồ.
+================================================================================

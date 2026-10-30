@@ -39,6 +39,33 @@ namespace AVMap
     {
         private const string TabId = "TAB_AVMAP_MAIN";
         private static readonly RibbonCommandHandler cmdHandler = new RibbonCommandHandler();
+        private static RibbonButton btnUpdateRef = null;
+
+        public static void SetUpdateNotification(string newVersion, string changeLogSummary)
+        {
+            try
+            {
+                if (btnUpdateRef != null)
+                {
+                    Action updateUi = () =>
+                    {
+                        btnUpdateRef.Text = $"🔔 CÓ BẢN MỚI\n(v{newVersion})";
+                        btnUpdateRef.ToolTip = $"Đã có bản cập nhật AVMap mới (v{newVersion})!\n\nNội dung mới:\n{changeLogSummary}\n\nBấm vào đây để tự động cập nhật ngay.";
+                    };
+
+                    var disp = ComponentManager.Ribbon?.Dispatcher;
+                    if (disp != null && !disp.CheckAccess())
+                    {
+                        disp.BeginInvoke(updateUi);
+                    }
+                    else
+                    {
+                        updateUi();
+                    }
+                }
+            }
+            catch { }
+        }
 
         public static void InitializeRibbon()
         {
@@ -338,8 +365,24 @@ namespace AVMap
                     ToolTip = "Quét dọn sạch sẽ toàn bộ file ảnh nền tạm và bộ nhớ đệm (Cache = 0 MB)"
                 };
 
+                var btnUpdate = new RibbonButton
+                {
+                    Text = "Kiểm Tra\nCập Nhật",
+                    CommandParameter = "AVUPDATE ",
+                    CommandHandler = cmdHandler,
+                    ShowText = true,
+                    ShowImage = true,
+                    Size = RibbonItemSize.Large,
+                    Orientation = Orientation.Vertical,
+                    LargeImage = IconHelper.LoadIcon("SpmBgMapRefresh.png") ?? IconHelper.LoadIcon("SpmBgMapRefresh16.png"),
+                    Image = IconHelper.LoadIcon("SpmBgMapRefresh16.png"),
+                    ToolTip = "Kiểm tra phiên bản mới, tự động tải và cập nhật AVMap chỉ với 1 cú click (Lệnh: AVUPDATE)"
+                };
+
                 pnlHelpSource.Items.Add(btnHelp);
                 pnlHelpSource.Items.Add(btnClean);
+                pnlHelpSource.Items.Add(btnUpdate);
+                btnUpdateRef = btnUpdate;
                 tab.Panels.Add(pnlHelp);
 
                 tab.IsActive = true;
