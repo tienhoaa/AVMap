@@ -45,11 +45,14 @@ namespace AVMap
                 }
             }
 
-            if (GoogleTileClient.ActiveMapType != null && GoogleTileClient.ActiveMapType.Contains(",svv"))
+            if (!StreetViewService.IsStreetViewActive)
             {
-                GoogleTileClient.ActiveMapType = GoogleTileClient.ActiveMapType.Replace(",svv", "");
+                if (GoogleTileClient.ActiveMapType != null && GoogleTileClient.ActiveMapType.Contains(",svv"))
+                {
+                    GoogleTileClient.ActiveMapType = GoogleTileClient.ActiveMapType.Replace(",svv", "");
+                }
+                StreetViewService.RemoveCoverageOverlay(doc);
             }
-            StreetViewService.RemoveCoverageOverlay(doc);
 
             if (currentDoc != doc)
             {
@@ -155,11 +158,6 @@ namespace AVMap
 
             Document doc = CadApp.DocumentManager.MdiActiveDocument;
             if (doc == null) return;
-            if (GoogleTileClient.ActiveMapType != null && GoogleTileClient.ActiveMapType.Contains(",svv"))
-            {
-                GoogleTileClient.ActiveMapType = GoogleTileClient.ActiveMapType.Replace(",svv", "");
-            }
-            StreetViewService.RemoveCoverageOverlay(doc);
 
             if (currentDoc != doc)
             {
@@ -432,7 +430,7 @@ namespace AVMap
             double widthMeters = Math.Abs(seCad.X - nwCad.X);
             double heightMeters = Math.Abs(nwCad.Y - seCad.Y);
 
-            string mapType = forceMapType ?? (GoogleTileClient.ActiveMapType?.Replace(",svv", "") ?? "y");
+            string mapType = forceMapType ?? (GoogleTileClient.ActiveMapType ?? "y");
 
             string imageFile = null;
             try

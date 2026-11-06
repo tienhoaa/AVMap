@@ -15,6 +15,7 @@ namespace AVMap
     {
         private const string CoverageLayer = "_AVMAP_STREETVIEW_COVERAGE_";
         public const string MarkerLayer = "_AVMAP_STREETVIEW_MARKER_";
+        public static bool IsStreetViewActive { get; private set; } = false;
         private static bool isUpdatingCoverage = false;
         private static StreetViewWindow _activeStreetViewWindow = null;
 
@@ -355,13 +356,16 @@ namespace AVMap
 
             ed.WriteMessage("\n[AVMap] Đang nạp mạng lưới đường Google Street View...");
 
+            // Đánh dấu Street View đang kích hoạt để khi lăn chuột/zoom bản đồ KHÔNG bị xóa đường màu xanh
+            IsStreetViewActive = true;
+            GoogleTileClient.ActiveMapType = svMapType;
+
             if (!wasRunning)
             {
                 RealtimeMapEngine.Start();
             }
 
             // Nạp và hiển thị các tuyến đường màu xanh TRƯỚC KHI yêu cầu click
-            GoogleTileClient.ActiveMapType = svMapType;
             RealtimeMapEngine.UpdateMapNow(doc, svMapType);
 
             PointMonitorEventHandler onPointMonitor = (s, e) =>
@@ -414,6 +418,7 @@ namespace AVMap
             }
             finally
             {
+                IsStreetViewActive = false;
                 ed.PointMonitor -= onPointMonitor;
 
                 // Khôi phục lại chế độ bắt điểm OSMODE ban đầu của người dùng

@@ -1,12 +1,12 @@
 {
   "version": "1.4.0",
   "releaseDate": "2026-11-06",
-  "title": "AVMap v1.4.0 - Tùy Chọn Khởi Động Cùng CAD & Tối Ưu Hóa Giao Diện",
+  "title": "AVMap v1.4.0 - Tùy Chọn Khởi Động Cùng CAD & Sửa Lỗi Street View",
   "changeLog": [
+    "Khắc phục triệt để lỗi khi lăn chuột (zoom/pan) bị mất đường màu xanh Google Street View",
     "Thêm tính năng Bật / Hủy Tự Động Khởi Động cùng CAD theo chuẩn Autodesk .bundle quốc tế",
     "Thêm nút Bật / Tắt trực quan trên thanh Ribbon và lệnh gõ tắt AVSTARTUP / AVAUTOLOAD",
-    "Cung cấp 2 file BAT 1-Click bật/tắt bên ngoài thư mục cực kỳ tiện lợi",
-    "Tối ưu danh mục VN-2000 34 tỉnh sáp nhập (TT 24/2025) và múi chiếu 6 độ TM-6",
+    "Cung cấp các file BAT 1-Click bật/tắt bên ngoài thư mục cho cả AutoCAD và enjiCAD 2026",
     "Lịch sử hệ tọa độ độc lập và tự động làm mới theo từng phiên làm việc"
   ],
   "files_AutoCAD": [

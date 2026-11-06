@@ -14,6 +14,7 @@ namespace AVMap.Enji
     {
         private const string CoverageLayer = "_AVMAP_STREETVIEW_COVERAGE_";
         public const string MarkerLayer = "_AVMAP_STREETVIEW_MARKER_";
+        public static bool IsStreetViewActive { get; private set; } = false;
         private static StreetViewWindow _activeStreetViewWindow = null;
 
         private static System.Windows.Threading.DispatcherTimer _markerThrottleTimer = null;
@@ -352,13 +353,15 @@ namespace AVMap.Enji
 
             ed.WriteMessage("\n[AVMap enjiCAD] Đang nạp mạng lưới đường Google Street View...");
 
+            IsStreetViewActive = true;
+            GoogleTileClient.ActiveMapType = svMapType;
+
             if (!wasRunning)
             {
                 RealtimeMapEngine.Start();
             }
 
             // Nạp và hiển thị các tuyến đường màu xanh TRƯỚC KHI yêu cầu click
-            GoogleTileClient.ActiveMapType = svMapType;
             RealtimeMapEngine.UpdateMapNow(doc, svMapType);
 
             // Tạm thời tắt bắt điểm (OSMODE bit 16384) để tránh bắt nhầm đối tượng khác khi chọn đường
@@ -401,6 +404,7 @@ namespace AVMap.Enji
             }
             finally
             {
+                IsStreetViewActive = false;
                 // Khôi phục lại chế độ bắt điểm OSMODE ban đầu của người dùng
                 if (oldOsmodeObj != null)
                 {
