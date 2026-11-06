@@ -468,5 +468,16 @@ namespace AVMap
         {
             await UpdateService.CheckUpdateAsync(true);
         }
+
+        [CommandMethod("AVSTARTUP")]
+        [CommandMethod("AVAUTOLOAD")]
+        [CommandMethod("AVKHOIDONG")]
+        public void ToggleStartupCommand()
+        {
+            AutoloadService.ToggleAutoloadWithPrompt(() =>
+            {
+                RibbonManager.UpdateStartupButtonState();
+            });
+        }
     }
 }

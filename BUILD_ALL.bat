@@ -64,6 +64,14 @@ copy /y "enjiCAD\bin\Release\net8.0-windows\*.dll" "%TARGET_ROOT%\enjiCAD\" >nul
 copy /y "Updater\bin\Release\net48\AVMapUpdater.exe" "%TARGET_ROOT%\enjiCAD\AVMapUpdater.exe" >nul
 copy /y "version.json" "%TARGET_ROOT%\enjiCAD\version.json" >nul
 
+copy /y "1_BAT_KHOI_DONG_CUNG_AUTOCAD.bat" "%TARGET_ROOT%\AutoCAD\" >nul
+copy /y "2_TAT_KHOI_DONG_CUNG_CAD.bat" "%TARGET_ROOT%\AutoCAD\" >nul
+copy /y "1_BAT_KHOI_DONG_CUNG_ENJICAD.bat" "%TARGET_ROOT%\enjiCAD\" >nul
+copy /y "2_TAT_KHOI_DONG_CUNG_CAD.bat" "%TARGET_ROOT%\enjiCAD\" >nul
+copy /y "1_BAT_KHOI_DONG_CUNG_AUTOCAD.bat" "%TARGET_ROOT%\" >nul
+copy /y "1_BAT_KHOI_DONG_CUNG_ENJICAD.bat" "%TARGET_ROOT%\" >nul
+copy /y "2_TAT_KHOI_DONG_CUNG_CAD.bat" "%TARGET_ROOT%\" >nul
+
 tar -a -c -f "%TARGET_ROOT%\AVMap_AutoCAD_BanMoi.zip" -C "%TARGET_ROOT%\AutoCAD" *
 tar -a -c -f "%TARGET_ROOT%\AVMap_enjiCAD_BanMoi.zip" -C "%TARGET_ROOT%\enjiCAD" *
 
@@ -76,7 +84,7 @@ set PATH=C:\Program Files\Git\cmd;C:\Program Files\Git\bin;C:\Program Files\GitH
 
 gh repo edit tienhoaa/AVMap --visibility public --accept-visibility-change-consequences >nul 2>&1
 
-set "CUR_VER=v1.3.0"
+set "CUR_VER=v1.4.0"
 for /f "tokens=2 delims=:," %%a in ('findstr /i "\"version\"" version.json') do (
     set "RAW_VER=%%a"
 )

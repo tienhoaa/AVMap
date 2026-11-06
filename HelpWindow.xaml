@@ -110,6 +110,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="180"/>
@@ -172,19 +173,27 @@
                             <TextBlock Text="Đồng bộ hai chiều với Google Earth (xuất mốc tuyến hoặc lấy ranh về CAD)" Foreground="#334155"/>
                         </Border>
 
-                        <!-- Row 7: AVCLEAN -->
+                        <!-- Row 7: AVSTARTUP -->
                         <Border Grid.Row="7" Grid.Column="0" Background="#F8FAFC" Padding="8" BorderBrush="#E2E8F0" BorderThickness="0,0,1,1">
-                            <TextBlock Text="AVCLEAN" FontWeight="Bold" Foreground="#0284C7"/>
+                            <TextBlock Text="AVSTARTUP" FontWeight="Bold" Foreground="#0284C7"/>
                         </Border>
                         <Border Grid.Row="7" Grid.Column="1" Padding="8" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                            <TextBlock Text="Bật / Hủy Tự Động Khởi Động cùng CAD mỗi khi mở máy (dùng gói .bundle)" Foreground="#334155"/>
+                        </Border>
+
+                        <!-- Row 8: AVCLEAN -->
+                        <Border Grid.Row="8" Grid.Column="0" Background="#F8FAFC" Padding="8" BorderBrush="#E2E8F0" BorderThickness="0,0,1,1">
+                            <TextBlock Text="AVCLEAN" FontWeight="Bold" Foreground="#0284C7"/>
+                        </Border>
+                        <Border Grid.Row="8" Grid.Column="1" Padding="8" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
                             <TextBlock Text="Quét dọn sạch sẽ toàn bộ file tạm và giải phóng ổ cứng (Cache = 0 MB)" Foreground="#334155"/>
                         </Border>
 
-                        <!-- Row 8: AVFIX -->
-                        <Border Grid.Row="8" Grid.Column="0" Background="#F8FAFC" Padding="8" BorderBrush="#E2E8F0" BorderThickness="0,0,1,0">
+                        <!-- Row 9: AVFIX -->
+                        <Border Grid.Row="9" Grid.Column="0" Background="#F8FAFC" Padding="8" BorderBrush="#E2E8F0" BorderThickness="0,0,1,0">
                             <TextBlock Text="AVFIX (AVFILEDIA)" FontWeight="Bold" Foreground="#0284C7"/>
                         </Border>
-                        <Border Grid.Row="8" Grid.Column="1" Padding="8">
+                        <Border Grid.Row="9" Grid.Column="1" Padding="8">
                             <TextBlock Text="Khôi phục lại hộp thoại mở/lưu file của CAD nếu bị mất (FILEDIA = 1)" Foreground="#334155"/>
                         </Border>
                     </Grid>

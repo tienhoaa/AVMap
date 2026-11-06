@@ -40,6 +40,42 @@ namespace AVMap
         private const string TabId = "TAB_AVMAP_MAIN";
         private static readonly RibbonCommandHandler cmdHandler = new RibbonCommandHandler();
         private static RibbonButton btnUpdateRef = null;
+        private static RibbonButton btnStartupRef = null;
+
+        public static void UpdateStartupButtonState()
+        {
+            try
+            {
+                if (btnStartupRef != null)
+                {
+                    bool isEnabled = AutoloadService.IsAutoloadEnabled();
+                    Action updateUi = () =>
+                    {
+                        if (isEnabled)
+                        {
+                            btnStartupRef.Text = "✔ Tự Khởi Động\n(Đang BẬT)";
+                            btnStartupRef.ToolTip = "AVMap hiện ĐANG TỰ ĐỘNG KHỞI ĐỘNG cùng AutoCAD mỗi khi mở máy.\n\nClick vào đây nếu bạn muốn HỦY / TẮT (để chỉ khi nào cần mới gõ NETLOAD).";
+                        }
+                        else
+                        {
+                            btnStartupRef.Text = "⚡ Tự Khởi Động\n(Đang TẮT)";
+                            btnStartupRef.ToolTip = "Tính năng tự khởi động hiện đang TẮT (chỉ tải khi gõ NETLOAD).\n\nClick vào đây nếu bạn muốn BẬT tự động khởi động cùng AutoCAD.";
+                        }
+                    };
+
+                    var disp = ComponentManager.Ribbon?.Dispatcher;
+                    if (disp != null && !disp.CheckAccess())
+                    {
+                        disp.BeginInvoke(updateUi);
+                    }
+                    else
+                    {
+                        updateUi();
+                    }
+                }
+            }
+            catch { }
+        }
 
         public static void SetUpdateNotification(string newVersion, string changeLogSummary)
         {
@@ -379,7 +415,26 @@ namespace AVMap
                     ToolTip = "Kiểm tra phiên bản mới, tự động tải và cập nhật AVMap chỉ với 1 cú click (Lệnh: AVUPDATE)"
                 };
 
+                bool isAutoloadOn = AutoloadService.IsAutoloadEnabled();
+                var btnStartup = new RibbonButton
+                {
+                    Text = isAutoloadOn ? "✔ Tự Khởi Động\n(Đang BẬT)" : "⚡ Tự Khởi Động\n(Đang TẮT)",
+                    CommandParameter = "AVSTARTUP ",
+                    CommandHandler = cmdHandler,
+                    ShowText = true,
+                    ShowImage = true,
+                    Size = RibbonItemSize.Large,
+                    Orientation = Orientation.Vertical,
+                    LargeImage = IconHelper.LoadIcon("SpmOptions.png") ?? IconHelper.LoadIcon("Logo.png"),
+                    Image = IconHelper.LoadIcon("SpmOptions16.png") ?? IconHelper.LoadIcon("Logo.png"),
+                    ToolTip = isAutoloadOn 
+                        ? "AVMap hiện ĐANG TỰ ĐỘNG KHỞI ĐỘNG cùng AutoCAD.\nClick để HỦY / TẮT (khi nào dùng mới gõ NETLOAD)."
+                        : "Bật tự động nạp AVMap mỗi khi mở AutoCAD (dùng cơ chế .bundle chuẩn quốc tế).\nClick để BẬT."
+                };
+                btnStartupRef = btnStartup;
+
                 pnlHelpSource.Items.Add(btnHelp);
+                pnlHelpSource.Items.Add(btnStartup);
                 pnlHelpSource.Items.Add(btnClean);
                 pnlHelpSource.Items.Add(btnUpdate);
                 btnUpdateRef = btnUpdate;

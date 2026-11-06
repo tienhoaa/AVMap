@@ -1,13 +1,13 @@
 {
-  "version": "1.3.0",
-  "releaseDate": "2026-10-30",
-  "title": "AVMap v1.3.0 - Lịch Sử Hệ Tọa Độ & Cập Nhật 34 Tỉnh Mới Sau Sáp Nhập",
+  "version": "1.4.0",
+  "releaseDate": "2026-11-06",
+  "title": "AVMap v1.4.0 - Tùy Chọn Khởi Động Cùng CAD & Tối Ưu Hóa Giao Diện",
   "changeLog": [
-    "Tích hợp Bảng Lịch sử hệ tọa độ đã sử dụng gần đây (Recently Used), chọn lại siêu nhanh chỉ 1 click",
-    "Cập nhật chuẩn Kinh tuyến trục 34 tỉnh thành mới sau sáp nhập theo Thông tư 24/2025/TT-BTNMT",
-    "Hỗ trợ đầy đủ hệ tọa độ VN-2000 Múi chiếu 6 độ (TM-6 / UTM zone 48N & 49N)",
-    "Thể hiện rõ Tỉnh thành / Hệ tọa độ VN-2000 đang áp dụng cho bản vẽ",
-    "Tự động cập nhật file mới siêu nhanh (chỉ tải DLL cần thiết, không cần tải lại file ZIP lớn)"
+    "Thêm tính năng Bật / Hủy Tự Động Khởi Động cùng CAD theo chuẩn Autodesk .bundle quốc tế",
+    "Thêm nút Bật / Tắt trực quan trên thanh Ribbon và lệnh gõ tắt AVSTARTUP / AVAUTOLOAD",
+    "Cung cấp 2 file BAT 1-Click bật/tắt bên ngoài thư mục cực kỳ tiện lợi",
+    "Tối ưu danh mục VN-2000 34 tỉnh sáp nhập (TT 24/2025) và múi chiếu 6 độ TM-6",
+    "Lịch sử hệ tọa độ độc lập và tự động làm mới theo từng phiên làm việc"
   ],
   "files_AutoCAD": [
     {
