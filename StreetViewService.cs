@@ -242,7 +242,6 @@ namespace AVMap
             Document d = doc ?? CadApp.DocumentManager.MdiActiveDocument;
             if (d == null || d.IsDisposed) return;
 
-            // 1. Thử xóa trực tiếp nếu đang trên luồng CAD
             try
             {
                 using (d.LockDocument())
@@ -267,18 +266,52 @@ namespace AVMap
                         }
                         tr.Commit();
                     }
-                    d.Editor.UpdateScreen();
+                    d.Editor?.UpdateScreen();
                 }
             }
             catch { }
+        }
 
-            // 2. Dự phòng an toàn 100%: Nếu gọi từ sự kiện đóng cửa sổ WPF (ngoài luồng CAD),
-            // gửi lệnh nội bộ _AVMARKEROFF qua SendStringToExecute để AutoCAD tự xóa sạch trên luồng chính!
+        private static bool _wasRunningBeforeStreetView = false;
+        private static string _prevMapTypeBeforeStreetView = null;
+
+        public static void ScheduleCleanupAfterStreetView()
+        {
+            IsStreetViewActive = false;
+            EventHandler onIdle = null;
+            onIdle = (s, e) =>
+            {
+                try
+                {
+                    CadApp.Idle -= onIdle;
+                    Document d = CadApp.DocumentManager.MdiActiveDocument;
+                    if (d != null && !d.IsDisposed)
+                    {
+                        RemoveMarker(d);
+                        RemoveCoverageOverlay(d);
+
+                        if (!_wasRunningBeforeStreetView)
+                        {
+                            RealtimeMapEngine.Stop();
+                        }
+                        else if (!string.IsNullOrEmpty(_prevMapTypeBeforeStreetView))
+                        {
+                            string cleanBaseType = _prevMapTypeBeforeStreetView.Replace(",svv", "");
+                            GoogleTileClient.ActiveMapType = cleanBaseType;
+                            RealtimeMapEngine.UpdateMapNow(d, cleanBaseType);
+                        }
+                    }
+                }
+                catch { }
+            };
             try
             {
-                d.SendStringToExecute("\x03\x03_AVMARKEROFF\n", true, false, false);
+                CadApp.Idle += onIdle;
             }
-            catch { }
+            catch
+            {
+                RemoveMarker();
+            }
         }
 
         private static void ShowOrUpdateStreetViewWindow(double lat, double lon, ProvinceCrs crs, double cadX, double cadY, Document doc)
@@ -313,8 +346,8 @@ namespace AVMap
                 {
                     _markerThrottleTimer?.Stop();
                     _markerThrottleTimer = null;
-                    RemoveMarker(doc);
                     _activeStreetViewWindow = null;
+                    ScheduleCleanupAfterStreetView();
                 };
 
                 // Vẽ ngay marker vị trí ban đầu
@@ -346,9 +379,9 @@ namespace AVMap
             }
 
             // Ghi nhận trạng thái nền ban đầu của người dùng
-            bool wasRunning = RealtimeMapEngine.IsRunning;
-            string prevMapType = GoogleTileClient.ActiveMapType;
-            string cleanBaseType = prevMapType?.Replace(",svv", "") ?? "y";
+            _wasRunningBeforeStreetView = RealtimeMapEngine.IsRunning;
+            _prevMapTypeBeforeStreetView = GoogleTileClient.ActiveMapType;
+            string cleanBaseType = _prevMapTypeBeforeStreetView?.Replace(",svv", "") ?? "y";
 
             // Xác định loại nền hiển thị tuyến đường Street View phù hợp nhất với loại nền người dùng đang chọn
             string svMapType;
@@ -371,7 +404,7 @@ namespace AVMap
             IsStreetViewActive = true;
             GoogleTileClient.ActiveMapType = svMapType;
 
-            if (!wasRunning)
+            if (!_wasRunningBeforeStreetView)
             {
                 RealtimeMapEngine.Start();
             }
@@ -429,7 +462,6 @@ namespace AVMap
             }
             finally
             {
-                IsStreetViewActive = false;
                 ed.PointMonitor -= onPointMonitor;
 
                 // Khôi phục lại chế độ bắt điểm OSMODE ban đầu của người dùng
@@ -438,29 +470,15 @@ namespace AVMap
                     try { CadApp.SetSystemVariable("OSMODE", oldOsmodeObj); } catch { }
                 }
 
-                // Nếu cửa sổ Street View đã đóng hoặc không còn hiển thị, xóa ngay marker
+                // Nếu cửa sổ Street View đã đóng (hoặc chưa mở được), dọn dẹp và hoàn trả ngay
                 if (_activeStreetViewWindow == null || !_activeStreetViewWindow.IsLoaded)
                 {
-                    RemoveMarker(doc);
-                }
-
-                // HOÀN TRẢ BẢN VẼ SẠCH SẼ HOÀN TOÀN:
-                cleanBaseType = prevMapType?.Replace(",svv", "") ?? "y";
-                GoogleTileClient.ActiveMapType = cleanBaseType;
-
-                if (!wasRunning)
-                {
-                    // Nếu ban đầu người dùng KHÔNG bật map (chạy độc lập), tắt và xóa sạch nền!
-                    RealtimeMapEngine.Stop();
+                    ScheduleCleanupAfterStreetView();
                 }
                 else
                 {
-                    // Nếu ban đầu người dùng ĐANG bật map, khôi phục đúng loại map ban đầu của họ (không bị ép sang Hybrid!)
-                    RealtimeMapEngine.UpdateMapNow(doc, cleanBaseType);
+                    ed.WriteMessage("\n[AVMap] Đã dừng chọn điểm. Cửa sổ Street View vẫn đang mở để quan sát. Đóng cửa sổ Street View để tự động hoàn trả bản vẽ.\n");
                 }
-
-                // Dọn dẹp layer phụ nếu còn sót
-                RemoveCoverageOverlay(doc);
             }
         }
 

@@ -51,7 +51,7 @@ namespace AVMap
                 }
                 catch { }
 
-                return "1.4.0";
+                return "1.4.1";
             }
         }
 

@@ -360,7 +360,15 @@ namespace AVMap
             base.OnClosed(e);
             try
             {
+                PovChangedCallback = null;
                 ClosedCallback?.Invoke();
+                ClosedCallback = null;
+            }
+            catch { }
+
+            try
+            {
+                webView?.Dispose();
             }
             catch { }
         }
