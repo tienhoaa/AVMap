@@ -235,6 +235,15 @@ namespace AVMap
             }
         }
 
+        [CommandMethod("AVMARKEROFF")]
+        [CommandMethod("AVREMOVEMARKER")]
+        [CommandMethod("AVDELMARKER")]
+        public void RemoveMarkerCommand()
+        {
+            Document doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+            StreetViewService.RemoveMarker(doc);
+        }
+
         [CommandMethod("AVFILEDIA")]
         [CommandMethod("AVFIX")]
         public void FixFilediaCommand()

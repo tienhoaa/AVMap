@@ -150,6 +150,15 @@ namespace AVMap.Enji
             }
         }
 
+        [CommandMethod("AVMARKEROFF")]
+        [CommandMethod("AVREMOVEMARKER")]
+        [CommandMethod("AVDELMARKER")]
+        public void RemoveMarkerCommand()
+        {
+            Document doc = CadApp.DocumentManager.MdiActiveDocument;
+            StreetViewService.RemoveMarker(doc);
+        }
+
         [CommandMethod("AVRIBBON")]
         public void ShowRibbonCommand()
         {

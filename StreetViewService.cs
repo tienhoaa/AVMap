@@ -221,7 +221,7 @@ namespace AVMap
                         DBText txt = new DBText
                         {
                             Layer = MarkerLayer,
-                            TextString = $"👁 STREET VIEW: {heading:F0}° ({dirLabel})",
+                            TextString = $"STREET VIEW: {heading:F0}° ({dirLabel})",
                             Height = 2.4 * unitFactor,
                             Position = new Point3d(cadX + (rOuter + 1.5 * unitFactor), cadY + (rOuter + 1.5 * unitFactor), 0),
                             Color = pureWhite
@@ -237,14 +237,17 @@ namespace AVMap
             catch { }
         }
 
-        public static void RemoveMarker(Document doc)
+        public static void RemoveMarker(Document doc = null)
         {
-            if (doc == null || doc.IsDisposed) return;
+            Document d = doc ?? CadApp.DocumentManager.MdiActiveDocument;
+            if (d == null || d.IsDisposed) return;
+
+            // 1. Thử xóa trực tiếp nếu đang trên luồng CAD
             try
             {
-                using (doc.LockDocument())
+                using (d.LockDocument())
                 {
-                    Database db = doc.Database;
+                    Database db = d.Database;
                     using (Transaction tr = db.TransactionManager.StartTransaction())
                     {
                         BlockTable bt = (BlockTable)tr.GetObject(db.BlockTableId, OpenMode.ForRead);
@@ -264,8 +267,16 @@ namespace AVMap
                         }
                         tr.Commit();
                     }
-                    doc.Editor.UpdateScreen();
+                    d.Editor.UpdateScreen();
                 }
+            }
+            catch { }
+
+            // 2. Dự phòng an toàn 100%: Nếu gọi từ sự kiện đóng cửa sổ WPF (ngoài luồng CAD),
+            // gửi lệnh nội bộ _AVMARKEROFF qua SendStringToExecute để AutoCAD tự xóa sạch trên luồng chính!
+            try
+            {
+                d.SendStringToExecute("\x03\x03_AVMARKEROFF\n", true, false, false);
             }
             catch { }
         }
@@ -425,6 +436,12 @@ namespace AVMap
                 if (oldOsmodeObj != null)
                 {
                     try { CadApp.SetSystemVariable("OSMODE", oldOsmodeObj); } catch { }
+                }
+
+                // Nếu cửa sổ Street View đã đóng hoặc không còn hiển thị, xóa ngay marker
+                if (_activeStreetViewWindow == null || !_activeStreetViewWindow.IsLoaded)
+                {
+                    RemoveMarker(doc);
                 }
 
                 // HOÀN TRẢ BẢN VẼ SẠCH SẼ HOÀN TOÀN:

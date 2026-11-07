@@ -219,7 +219,7 @@ namespace AVMap.Enji
                         DBText txt = new DBText
                         {
                             Layer = MarkerLayer,
-                            TextString = $"👁 STREET VIEW: {heading:F0}° ({dirLabel})",
+                            TextString = $"STREET VIEW: {heading:F0}° ({dirLabel})",
                             Height = 2.4 * unitFactor,
                             Position = new Point3d(cadX + (rOuter + 1.5 * unitFactor), cadY + (rOuter + 1.5 * unitFactor), 0),
                             Color = pureWhite
@@ -235,14 +235,17 @@ namespace AVMap.Enji
             catch { }
         }
 
-        public static void RemoveMarker(Document doc)
+        public static void RemoveMarker(Document doc = null)
         {
-            if (doc == null || doc.IsDisposed) return;
+            Document d = doc ?? CadApp.DocumentManager.MdiActiveDocument;
+            if (d == null || d.IsDisposed) return;
+
+            // 1. Thử xóa trực tiếp nếu đang trên luồng CAD
             try
             {
-                using (doc.LockDocument())
+                using (d.LockDocument())
                 {
-                    Database db = doc.Database;
+                    Database db = d.Database;
                     using (Transaction tr = db.TransactionManager.StartTransaction())
                     {
                         BlockTable bt = (BlockTable)tr.GetObject(db.BlockTableId, OpenMode.ForRead);
@@ -262,8 +265,15 @@ namespace AVMap.Enji
                         }
                         tr.Commit();
                     }
-                    doc.Editor.UpdateScreen();
+                    d.Editor.UpdateScreen();
                 }
+            }
+            catch { }
+
+            // 2. Dự phòng an toàn 100%: Gửi lệnh nội bộ _AVMARKEROFF qua SendStringToExecute
+            try
+            {
+                d.SendStringToExecute("\x03\x03_AVMARKEROFF\n", true, false, false);
             }
             catch { }
         }
@@ -411,6 +421,12 @@ namespace AVMap.Enji
                     try { CadApp.SetSystemVariable("OSMODE", oldOsmodeObj); } catch { }
                 }
 
+                // Nếu cửa sổ Street View đã đóng hoặc người dùng dừng lệnh, xóa ngay marker
+                if (_activeStreetViewWindow == null || !_activeStreetViewWindow.IsLoaded)
+                {
+                    RemoveMarker(doc);
+                }
+
                 // HOÀN TRẢ BẢN VẼ SẠCH SẼ HOÀN TOÀN:
                 if (!wasRunning)
                 {
@@ -429,7 +445,7 @@ namespace AVMap.Enji
             }
         }
 
-        private static void RemoveCoverageOverlay(Document doc)
+        public static void RemoveCoverageOverlay(Document doc)
         {
             try
             {

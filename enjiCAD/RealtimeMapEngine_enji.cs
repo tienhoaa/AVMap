@@ -41,6 +41,15 @@ namespace AVMap.Enji
                 return;
             }
 
+            if (!StreetViewService.IsStreetViewActive)
+            {
+                if (GoogleTileClient.ActiveMapType != null && GoogleTileClient.ActiveMapType.Contains(",svv"))
+                {
+                    GoogleTileClient.ActiveMapType = GoogleTileClient.ActiveMapType.Replace(",svv", "");
+                }
+                StreetViewService.RemoveCoverageOverlay(doc);
+            }
+
             if (isRunning)
             {
                 ed.WriteMessage("\n[AVMap enjiCAD] Đang làm mới bản đồ nền theo khung nhìn hiện tại...");
@@ -110,6 +119,8 @@ namespace AVMap.Enji
             if (doc != null)
             {
                 RemoveBackgroundImages(doc);
+                StreetViewService.RemoveCoverageOverlay(doc);
+                StreetViewService.RemoveMarker(doc);
                 doc.Editor?.WriteMessage("\n[AVMap enjiCAD] Đã ẨN bản đồ nền. Bản vẽ sạch sẽ trở lại.\n");
             }
 

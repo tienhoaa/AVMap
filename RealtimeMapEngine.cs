@@ -129,6 +129,7 @@ namespace AVMap
                 try { doc.ViewChanged -= Doc_ViewChanged; } catch { }
                 RemoveBackgroundImages(doc);
                 StreetViewService.RemoveCoverageOverlay(doc);
+                StreetViewService.RemoveMarker(doc);
                 doc.Editor?.WriteMessage("\n[AVMap] Đã ẨN bản đồ nền. Bản vẽ sạch sẽ trở lại.\n");
             }
             currentDoc = null;
