@@ -19,7 +19,7 @@ namespace AVMap
                 Directory.CreateDirectory(cacheFolder);
             }
             client.Timeout = TimeSpan.FromSeconds(15);
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 AVMap/1.4.1 (AutoCAD_enjiCAD_Plugin; https://github.com/tienhoaa/AVMap)");
         }
 
         public static string ActiveMapType { get; set; } = "y"; // "y" (Hybrid), "s" (Satellite), "m" (Road), "p" (Terrain)
@@ -31,6 +31,10 @@ namespace AVMap
                 if (Directory.Exists(cacheFolder))
                 {
                     foreach (var file in Directory.GetFiles(cacheFolder, "*_stitched_*.png"))
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
+                    foreach (var file in Directory.GetFiles(cacheFolder, "osm_*.jpg"))
                     {
                         try { File.Delete(file); } catch { }
                     }
@@ -57,7 +61,7 @@ namespace AVMap
         public static async Task<Bitmap> DownloadTileAsync(int x, int y, int z, string mapType)
         {
             string safeType = mapType.Replace(",", "_");
-            string ext = (mapType == "svv") ? "png" : "jpg";
+            string ext = (mapType == "svv" || mapType == "osm") ? "png" : "jpg";
             string fileName = $"{safeType}_{z}_{x}_{y}.{ext}";
             string filePath = Path.Combine(cacheFolder, fileName);
 
@@ -82,8 +86,8 @@ namespace AVMap
             }
             else if (mapType == "osm")
             {
-                // Bản đồ OpenStreetMap (OSM) / Esri World Street Map miễn phí, không watermark, không cần API key
-                url = $"https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}.jpg";
+                // Bản đồ OpenStreetMap (OSM) chuẩn từ tile.openstreetmap.org (giống 100% trang openstreetmap.org)
+                url = $"https://tile.openstreetmap.org/{z}/{x}/{y}.png";
             }
             else if (mapType == "esri")
             {
