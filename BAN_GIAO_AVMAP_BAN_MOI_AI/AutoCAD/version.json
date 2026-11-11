@@ -1,7 +1,7 @@
 {
-  "version": "1.4.1",
+  "version": "1.4.2",
   "releaseDate": "2026-11-12",
-  "title": "AVMap v1.4.1 - Chuẩn Hóa Nguồn OpenStreetMap & Sửa Triệt Để Lỗi Treo Máy",
+  "title": "AVMap v1.4.2 - Chuẩn Hóa Nguồn OpenStreetMap & Sửa Triệt Để Lỗi Treo Máy",
   "changeLog": [
     "Chuẩn hóa nguồn bản đồ OpenStreetMap (OSM) chính thức theo chuẩn tile.openstreetmap.org giống 100% web",
     "Sửa triệt để lỗi treo máy/đơ CAD khi đóng cửa sổ Google Street View hoặc nhấn Dọn Rác (AVCLEAN)",

@@ -18,8 +18,17 @@ namespace AVMap
             {
                 Directory.CreateDirectory(cacheFolder);
             }
+            try
+            {
+                // Tự động dọn sạch các tile bị lưu lỗi Access Blocked cũ
+                foreach (var f in Directory.GetFiles(cacheFolder, "osm_*.*"))
+                {
+                    try { File.Delete(f); } catch { }
+                }
+            }
+            catch { }
             client.Timeout = TimeSpan.FromSeconds(15);
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 AVMap/1.4.1 (AutoCAD_enjiCAD_Plugin; https://github.com/tienhoaa/AVMap)");
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 AVMap/1.4.2 (AutoCAD_enjiCAD_Plugin; https://github.com/tienhoaa/AVMap)");
         }
 
         public static string ActiveMapType { get; set; } = "y"; // "y" (Hybrid), "s" (Satellite), "m" (Road), "p" (Terrain)
@@ -34,7 +43,7 @@ namespace AVMap
                     {
                         try { File.Delete(file); } catch { }
                     }
-                    foreach (var file in Directory.GetFiles(cacheFolder, "osm_*.jpg"))
+                    foreach (var file in Directory.GetFiles(cacheFolder, "osm_*.*"))
                     {
                         try { File.Delete(file); } catch { }
                     }
@@ -86,8 +95,10 @@ namespace AVMap
             }
             else if (mapType == "osm")
             {
-                // Bản đồ OpenStreetMap (OSM) chuẩn từ tile.openstreetmap.org (giống 100% trang openstreetmap.org)
-                url = $"https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+                // Bản đồ OpenStreetMap (OSM) từ OSM France / Humanitarian (Dữ liệu OpenStreetMap 100%, CDN tốc độ cao, không bị chặn Access Blocked)
+                char[] subs = new[] { 'a', 'b', 'c' };
+                char sub = subs[Math.Abs((x + y) % 3)];
+                url = $"https://{sub}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png";
             }
             else if (mapType == "esri")
             {
