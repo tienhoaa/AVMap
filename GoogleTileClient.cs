@@ -29,7 +29,7 @@ namespace AVMap
             try
             {
                 // Tự động dọn sạch các tile cũ có thể bị lưu lỗi trước đó
-                string[] patterns = new[] { "osm_*.*", "cyclosm_*.*", "opentopo_*.*" };
+                string[] patterns = new[] { "osm_*.*", "cyclosm_*.*", "opentopo_*.*", "*_stitched_*.*" };
                 foreach (var p in patterns)
                 {
                     foreach (var f in Directory.GetFiles(cacheFolder, p))
@@ -39,8 +39,8 @@ namespace AVMap
                 }
             }
             catch { }
-            client.Timeout = TimeSpan.FromSeconds(15);
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 AVMap/2.0.0");
+            client.Timeout = TimeSpan.FromSeconds(5);
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
         }
 
         public static string ActiveMapType { get; set; } = "y"; // "y" (Hybrid), "s" (Satellite), "m" (Road), "p" (Terrain)
@@ -158,12 +158,11 @@ namespace AVMap
             if (mapType == "opentopo")
             {
                 // Bản đồ địa hình OpenTopoMap (Đường đồng mức OSM + đổ bóng 3D từ SAS.Planet)
-                // Hỗ trợ cụm máy chủ đa tầng: OpenMaps CDN -> OpenTopoMap Org -> Esri World Topo Map dự phòng
+                // Ưu tiên máy chủ chính thức OpenTopoMap Org -> Dự phòng Esri World Topo Map
                 char[] subs = new[] { 'a', 'b', 'c' };
                 char sub = subs[Math.Abs((x + y) % 3)];
                 string[] urls = new[]
                 {
-                    $"https://tile.openmaps.fr/opentopomap/{z}/{x}/{y}.png",
                     $"https://{sub}.tile.opentopomap.org/{z}/{x}/{y}.png",
                     $"https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}.jpg"
                 };
@@ -173,7 +172,7 @@ namespace AVMap
                     try
                     {
                         byte[] data = await client.GetByteArrayAsync(candidateUrl).ConfigureAwait(false);
-                        if (data != null && data.Length > 500)
+                        if (data != null && data.Length > 1000)
                         {
                             try { File.WriteAllBytes(filePath, data); } catch { }
                             using (var ms = new MemoryStream(data))
@@ -198,16 +197,17 @@ namespace AVMap
                 {
                     using (var req = new HttpRequestMessage(HttpMethod.Get, cyclosmUrl))
                     {
-                        // Headers chuẩn SAS.Planet để vượt qua xác thực Nginx (Referer)
-                        req.Headers.Referrer = new Uri($"https://{sub}.tile-cyclosm.openstreetmap.fr");
-                        req.Headers.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8");
+                        // Headers chuẩn 100% SAS.Planet (Fixed Referer + Clean User-Agent)
+                        req.Headers.Referrer = new Uri("https://a.tile-cyclosm.openstreetmap.fr");
+                        req.Headers.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36");
+                        req.Headers.TryAddWithoutValidation("Accept", "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8");
 
                         using (var resp = await client.SendAsync(req, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false))
                         {
                             if (resp.IsSuccessStatusCode)
                             {
                                 byte[] data = await resp.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-                                if (data != null && data.Length > 500)
+                                if (data != null && data.Length > 1000)
                                 {
                                     try { File.WriteAllBytes(filePath, data); } catch { }
                                     using (var ms = new MemoryStream(data))
@@ -221,29 +221,21 @@ namespace AVMap
                 }
                 catch { }
 
-                // Fallback nếu mạng bị nghẽn: Tự động dự phòng qua OpenTopoMap hoặc OSM HOT
-                string[] fallbackUrls = new[]
+                // Fallback nếu máy chủ CyclOSM nghẽn mạng: Tự động dùng cụm OSM HOT (100% dữ liệu OSM)
+                string fallbackUrl = $"https://{sub}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png";
+                try
                 {
-                    $"https://tile.openmaps.fr/opentopomap/{z}/{x}/{y}.png",
-                    $"https://{sub}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-                };
-
-                foreach (var fbUrl in fallbackUrls)
-                {
-                    try
+                    byte[] data = await client.GetByteArrayAsync(fallbackUrl).ConfigureAwait(false);
+                    if (data != null && data.Length > 1000)
                     {
-                        byte[] data = await client.GetByteArrayAsync(fbUrl).ConfigureAwait(false);
-                        if (data != null && data.Length > 500)
+                        try { File.WriteAllBytes(filePath, data); } catch { }
+                        using (var ms = new MemoryStream(data))
                         {
-                            try { File.WriteAllBytes(filePath, data); } catch { }
-                            using (var ms = new MemoryStream(data))
-                            {
-                                return new Bitmap(ms);
-                            }
+                            return new Bitmap(ms);
                         }
                     }
-                    catch { }
                 }
+                catch { }
 
                 return null;
             }

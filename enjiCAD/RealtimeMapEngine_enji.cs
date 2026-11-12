@@ -274,7 +274,7 @@ namespace AVMap.Enji
             int maxTY = Math.Max(tileMinY, tileMaxY);
 
             // Giới hạn số mảnh tải an toàn (không quá 20 mảnh mỗi chiều, tổng không quá 25)
-            while (((maxTX - minTX + 1) * (maxTY - minTY + 1) > 25 || (maxTX - minTX + 1) > 20 || (maxTY - minTY + 1) > 20) && zoom > 4)
+            while (((maxTX - minTX + 1) * (maxTY - minTY + 1) > 49 || (maxTX - minTX + 1) > 20 || (maxTY - minTY + 1) > 20) && zoom > 4)
             {
                 zoom--;
                 var t1 = VN2000Transform.LatLonToTile(ptSW.Latitude, ptSW.Longitude, zoom);
@@ -507,7 +507,7 @@ namespace AVMap.Enji
         {
             double metersPerPixel = viewHeightMeters / Math.Max(1.0, screenPixelHeight);
             double latRad = centerLat * Math.PI / 180.0;
-            double z = Math.Floor(Math.Log(156543.03 * Math.Cos(latRad) / metersPerPixel) / Math.Log(2.0));
+            double z = Math.Round(Math.Log(156543.03 * Math.Cos(latRad) / metersPerPixel) / Math.Log(2.0));
             return Math.Max(3, Math.Min(20, (int)z));
         }
     }
