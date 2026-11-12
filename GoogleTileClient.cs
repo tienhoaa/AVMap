@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -10,6 +11,7 @@ namespace AVMap
     public static class GoogleTileClient
     {
         private static readonly HttpClient client = new HttpClient();
+        private static readonly SemaphoreSlim _osmThrottle = new SemaphoreSlim(4);
         private static readonly string cacheFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AVMap", "Cache");
 
         static GoogleTileClient()
@@ -28,7 +30,7 @@ namespace AVMap
             }
             catch { }
             client.Timeout = TimeSpan.FromSeconds(15);
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 AVMap/1.4.2 (AutoCAD_enjiCAD_Plugin; https://github.com/tienhoaa/AVMap)");
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
         }
 
         public static string ActiveMapType { get; set; } = "y"; // "y" (Hybrid), "s" (Satellite), "m" (Road), "p" (Terrain)
@@ -70,7 +72,7 @@ namespace AVMap
         public static async Task<Bitmap> DownloadTileAsync(int x, int y, int z, string mapType)
         {
             string safeType = mapType.Replace(",", "_");
-            string ext = (mapType == "svv" || mapType == "osm") ? "png" : "jpg";
+            string ext = (mapType == "svv" || mapType == "osm" || mapType == "cyclosm" || mapType == "opentopo" || mapType == "carto_light") ? "png" : "jpg";
             string fileName = $"{safeType}_{z}_{x}_{y}.{ext}";
             string filePath = Path.Combine(cacheFolder, fileName);
 
@@ -87,7 +89,14 @@ namespace AVMap
             }
 
             int serverIndex = Math.Abs((x + y) % 4);
+            char[] subs3 = new[] { 'a', 'b', 'c' };
+            char sub3 = subs3[Math.Abs((x + y) % 3)];
+            char[] subs4 = new[] { 'a', 'b', 'c', 'd' };
+            char sub4 = subs4[Math.Abs((x + y) % 4)];
+
             string url;
+            bool isThrottled = false;
+
             if (mapType == "svv")
             {
                 // Lớp phủ các tuyến đường có Google Street View màu xanh dương
@@ -95,10 +104,32 @@ namespace AVMap
             }
             else if (mapType == "osm")
             {
-                // Bản đồ OpenStreetMap (OSM) từ OSM France / Humanitarian (Dữ liệu OpenStreetMap 100%, CDN tốc độ cao, không bị chặn Access Blocked)
-                char[] subs = new[] { 'a', 'b', 'c' };
-                char sub = subs[Math.Abs((x + y) % 3)];
-                url = $"https://{sub}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png";
+                // Nguồn OpenStreetMap Standard chính thức từ web https://www.openstreetmap.org/ (Cập nhật thời gian thực mới nhất)
+                url = $"https://{sub3}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+                isThrottled = true;
+            }
+            else if (mapType == "cyclosm")
+            {
+                // Nguồn CyclOSM chính thức từ OpenStreetMap (Bản đồ giao thông & số nhà chi tiết nhất thế hệ mới)
+                url = $"https://{sub3}.tile.cyclosm.org/cyclosm/{z}/{x}/{y}.png";
+                isThrottled = true;
+            }
+            else if (mapType == "carto_light")
+            {
+                // Nguồn CARTO Positron (SAS.Planet OSM CartoLight) - Nền xám sáng tối giản cho kỹ sư CAD
+                url = $"https://{sub4}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png";
+            }
+            else if (mapType == "opentopo")
+            {
+                // Bản đồ địa hình OpenTopoMap (Đường đồng mức + đổ bóng 3D từ SAS.Planet)
+                url = $"https://{sub3}.tile.opentopomap.org/{z}/{x}/{y}.png";
+                isThrottled = true;
+            }
+            else if (mapType == "bing")
+            {
+                // Ảnh vệ tinh Microsoft Bing Maps Satellite độ phân giải cao, khử mây tốt (nguồn đỉnh từ SAS.Planet)
+                string quadKey = TileXYToQuadKey(x, y, z);
+                url = $"https://ecn.t{serverIndex}.tiles.virtualearth.net/tiles/a{quadKey}.jpeg?g=1";
             }
             else if (mapType == "esri")
             {
@@ -110,18 +141,87 @@ namespace AVMap
                 url = $"https://mt{serverIndex}.google.com/vt/lyrs={mapType}&x={x}&y={y}&z={z}";
             }
 
+            if (isThrottled)
+            {
+                await _osmThrottle.WaitAsync().ConfigureAwait(false);
+            }
+
             try
             {
-                byte[] data = await client.GetByteArrayAsync(url).ConfigureAwait(false);
-                try { File.WriteAllBytes(filePath, data); } catch { }
-                using (var ms = new MemoryStream(data))
+                using (var request = new HttpRequestMessage(HttpMethod.Get, url))
                 {
-                    return new Bitmap(ms);
+                    request.Headers.Referrer = new Uri("https://www.openstreetmap.org/");
+                    request.Headers.TryAddWithoutValidation("Accept", "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8");
+                    request.Headers.TryAddWithoutValidation("Sec-Fetch-Dest", "image");
+                    request.Headers.TryAddWithoutValidation("Sec-Fetch-Mode", "no-cors");
+                    request.Headers.TryAddWithoutValidation("Sec-Fetch-Site", "cross-site");
+
+                    using (var response = await client.SendAsync(request).ConfigureAwait(false))
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            byte[] data = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+
+                            // Phòng ngừa: Nếu OSM trả về ảnh lỗi "Access Blocked" (thường dưới 4.5KB)
+                            if (mapType == "osm" && data.Length < 4500)
+                            {
+                                // Tải từ máy chủ OSM Carto dự phòng (100% cùng kiểu vẽ Standard OSM từ CSDL gốc)
+                                string fbUrl = $"https://tile.openstreetmap.de/{z}/{x}/{y}.png";
+                                try
+                                {
+                                    using (var fbReq = new HttpRequestMessage(HttpMethod.Get, fbUrl))
+                                    using (var fbResp = await client.SendAsync(fbReq).ConfigureAwait(false))
+                                    {
+                                        if (fbResp.IsSuccessStatusCode)
+                                        {
+                                            data = await fbResp.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                                        }
+                                    }
+                                }
+                                catch { }
+                            }
+
+                            try { File.WriteAllBytes(filePath, data); } catch { }
+                            using (var ms = new MemoryStream(data))
+                            {
+                                return new Bitmap(ms);
+                            }
+                        }
+                        else if (mapType == "osm")
+                        {
+                            string fbUrl = $"https://tile.openstreetmap.de/{z}/{x}/{y}.png";
+                            try
+                            {
+                                using (var fbReq = new HttpRequestMessage(HttpMethod.Get, fbUrl))
+                                using (var fbResp = await client.SendAsync(fbReq).ConfigureAwait(false))
+                                {
+                                    if (fbResp.IsSuccessStatusCode)
+                                    {
+                                        byte[] data = await fbResp.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                                        try { File.WriteAllBytes(filePath, data); } catch { }
+                                        using (var ms = new MemoryStream(data))
+                                        {
+                                            return new Bitmap(ms);
+                                        }
+                                    }
+                                }
+                            }
+                            catch { }
+                        }
+                    }
                 }
+                return null;
             }
             catch
             {
                 return null;
+            }
+            finally
+            {
+                if (isThrottled)
+                {
+                    _osmThrottle.Release();
+                }
             }
         }
 
@@ -239,6 +339,26 @@ namespace AVMap
                 }
             }
             catch { }
+        }
+
+        public static string TileXYToQuadKey(int tileX, int tileY, int zoom)
+        {
+            var quadKey = new System.Text.StringBuilder();
+            for (int i = zoom; i > 0; i--)
+            {
+                int digit = 0;
+                int mask = 1 << (i - 1);
+                if ((tileX & mask) != 0)
+                {
+                    digit++;
+                }
+                if ((tileY & mask) != 0)
+                {
+                    digit += 2;
+                }
+                quadKey.Append(digit);
+            }
+            return quadKey.ToString();
         }
     }
 }

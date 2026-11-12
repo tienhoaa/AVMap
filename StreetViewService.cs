@@ -385,13 +385,13 @@ namespace AVMap
 
             // Xác định loại nền hiển thị tuyến đường Street View phù hợp nhất với loại nền người dùng đang chọn
             string svMapType;
-            if (cleanBaseType == "s" || cleanBaseType == "esri")
+            if (cleanBaseType == "s" || cleanBaseType == "esri" || cleanBaseType == "bing")
             {
                 svMapType = "s,svv"; // Ảnh vệ tinh thuần + đường xanh Street View (không nhãn giao thông)
             }
-            else if (cleanBaseType == "m" || cleanBaseType == "osm")
+            else if (cleanBaseType == "m" || cleanBaseType == "osm" || cleanBaseType == "cyclosm" || cleanBaseType == "opentopo" || cleanBaseType == "carto_light")
             {
-                svMapType = "m,svv"; // Bản đồ giao thông + đường xanh Street View
+                svMapType = "m,svv"; // Bản đồ giao thông/địa hình + đường xanh Street View
             }
             else
             {

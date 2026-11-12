@@ -379,17 +379,17 @@ namespace AVMap.Enji
             // Ghi nhận trạng thái nền ban đầu của người dùng
             _wasRunningBeforeStreetView = RealtimeMapEngine.IsRunning;
             _prevMapTypeBeforeStreetView = GoogleTileClient.ActiveMapType;
-            string prevMapType = _prevMapTypeBeforeStreetView;
+            string cleanBaseType = _prevMapTypeBeforeStreetView?.Replace(",svv", "") ?? "y";
 
             // Xác định loại nền hiển thị tuyến đường Street View phù hợp nhất với loại nền người dùng đang chọn
             string svMapType;
-            if (prevMapType == "s" || prevMapType == "esri")
+            if (cleanBaseType == "s" || cleanBaseType == "esri" || cleanBaseType == "bing")
             {
                 svMapType = "s,svv"; // Ảnh vệ tinh thuần + đường xanh Street View
             }
-            else if (prevMapType == "m" || prevMapType == "osm")
+            else if (cleanBaseType == "m" || cleanBaseType == "osm" || cleanBaseType == "cyclosm" || cleanBaseType == "opentopo" || cleanBaseType == "carto_light")
             {
-                svMapType = "m,svv"; // Bản đồ giao thông + đường xanh Street View
+                svMapType = "m,svv"; // Bản đồ giao thông/địa hình + đường xanh Street View
             }
             else
             {

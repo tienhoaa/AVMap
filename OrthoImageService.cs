@@ -22,8 +22,8 @@ namespace AVMap
 
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                ofd.Title = "Chọn ảnh trực giao bay chụp UAV / Flycam / Vệ tinh";
-                ofd.Filter = "Ảnh Bay Chụp / Trực Giao (*.tif;*.tiff;*.png;*.jpg;*.jpeg;*.ecw)|*.tif;*.tiff;*.png;*.jpg;*.jpeg;*.ecw|Tất cả định dạng (*.*)|*.*";
+                ofd.Title = "Chọn ảnh trực giao bay chụp UAV / Flycam / Vệ tinh / JPEG 2000";
+                ofd.Filter = "Ảnh Bay Chụp / Trực Giao (*.tif;*.tiff;*.png;*.jpg;*.jpeg;*.jp2;*.j2k;*.j2c;*.ecw)|*.tif;*.tiff;*.png;*.jpg;*.jpeg;*.jp2;*.j2k;*.j2c;*.ecw|JPEG 2000 (*.jp2;*.j2k;*.j2c)|*.jp2;*.j2k;*.j2c|Tất cả định dạng (*.*)|*.*";
                 ofd.Multiselect = true;
 
                 if (ofd.ShowDialog() != DialogResult.OK) return;
@@ -68,6 +68,34 @@ namespace AVMap
                 }
             }
 
+            string actualImagePath = imagePath;
+            string ext = Path.GetExtension(imagePath).ToLower();
+            if (ext == ".jp2" || ext == ".j2k" || ext == ".j2c")
+            {
+                try
+                {
+                    ed.WriteMessage($"\n[AVMap] Đang chuyển đổi định dạng JPEG 2000 (.jp2) sang TIFF tương thích AutoCAD...");
+                    string convertedDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AVMap", "ConvertedJP2");
+                    if (!Directory.Exists(convertedDir)) Directory.CreateDirectory(convertedDir);
+
+                    string convertedFile = Path.Combine(convertedDir, Path.GetFileNameWithoutExtension(imagePath) + ".tif");
+                    if (!File.Exists(convertedFile) || File.GetLastWriteTimeUtc(imagePath) > File.GetLastWriteTimeUtc(convertedFile))
+                    {
+                        using (var magickImg = new ImageMagick.MagickImage(imagePath))
+                        {
+                            magickImg.Format = ImageMagick.MagickFormat.Tif;
+                            magickImg.Settings.Compression = ImageMagick.CompressionMethod.LZW;
+                            magickImg.Write(convertedFile);
+                        }
+                    }
+                    actualImagePath = convertedFile;
+                }
+                catch (Exception exConv)
+                {
+                    ed.WriteMessage($"\n[AVMap Cảnh báo] Không thể nén chuyển đổi JP2 bằng Magick.NET: {exConv.Message}");
+                }
+            }
+
             try
             {
                 using (doc.LockDocument())
@@ -107,7 +135,7 @@ namespace AVMap
                     string defName = Path.GetFileNameWithoutExtension(imagePath) + "_" + DateTime.Now.Ticks;
 
                     RasterImageDef imgDef = new RasterImageDef();
-                    imgDef.SourceFileName = imagePath;
+                    imgDef.SourceFileName = actualImagePath;
                     imgDef.Load();
 
                     ObjectId defId = imgDict.SetAt(defName, imgDef);
@@ -172,7 +200,8 @@ namespace AVMap
             if (ext == ".tif" || ext == ".tiff") searchExts = new[] { ".tfw", ".tifw", ".wld" };
             else if (ext == ".png") searchExts = new[] { ".pgw", ".pngw", ".wld" };
             else if (ext == ".jpg" || ext == ".jpeg") searchExts = new[] { ".jgw", ".jpgw", ".wld" };
-            else searchExts = new[] { ".wld", ".tfw", ".pgw", ".jgw" };
+            else if (ext == ".jp2" || ext == ".j2k" || ext == ".j2c") searchExts = new[] { ".j2w", ".jp2w", ".j2kw", ".wld" };
+            else searchExts = new[] { ".wld", ".tfw", ".pgw", ".jgw", ".j2w" };
 
             foreach (var e in searchExts)
             {
@@ -224,12 +253,42 @@ namespace AVMap
                 double F = double.Parse(lines[5].Trim(), CultureInfo.InvariantCulture);
 
                 int imgW = 0, imgH = 0;
-                using (var fs = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                using (var img = System.Drawing.Image.FromStream(fs, false, false))
+                string ext = Path.GetExtension(imagePath).ToLower();
+                if (ext == ".jp2" || ext == ".j2k" || ext == ".j2c")
                 {
-                    imgW = img.Width;
-                    imgH = img.Height;
+                    try
+                    {
+                        var info = new ImageMagick.MagickImageInfo(imagePath);
+                        imgW = (int)info.Width;
+                        imgH = (int)info.Height;
+                    }
+                    catch { }
                 }
+
+                if (imgW == 0 || imgH == 0)
+                {
+                    try
+                    {
+                        using (var fs = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                        using (var img = System.Drawing.Image.FromStream(fs, false, false))
+                        {
+                            imgW = img.Width;
+                            imgH = img.Height;
+                        }
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            var info = new ImageMagick.MagickImageInfo(imagePath);
+                            imgW = (int)info.Width;
+                            imgH = (int)info.Height;
+                        }
+                        catch { }
+                    }
+                }
+
+                if (imgW == 0 || imgH == 0) return false;
 
                 double pixelSizeX = Math.Abs(A);
                 double pixelSizeY = Math.Abs(E);
@@ -327,8 +386,8 @@ namespace AVMap
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                ofd.Title = $"Chọn file tọa độ (.tfw, .pgw, .jgw, .wld) cho ảnh {Path.GetFileName(imagePath)}";
-                ofd.Filter = "File tọa độ (*.tfw;*.pgw;*.jgw;*.wld)|*.tfw;*.pgw;*.jgw;*.wld|Tất cả định dạng (*.*)|*.*";
+                ofd.Title = $"Chọn file tọa độ (.j2w, .tfw, .pgw, .jgw, .wld) cho ảnh {Path.GetFileName(imagePath)}";
+                ofd.Filter = "File tọa độ (*.j2w;*.jp2w;*.tfw;*.pgw;*.jgw;*.wld)|*.j2w;*.jp2w;*.tfw;*.pgw;*.jgw;*.wld|Tất cả định dạng (*.*)|*.*";
                 ofd.InitialDirectory = Path.GetDirectoryName(imagePath);
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
