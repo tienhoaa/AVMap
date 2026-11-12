@@ -109,6 +109,7 @@ namespace AVMap
             double heightMeters = maxY - minY;
 
             int zoom = Math.Max(5, Math.Min(20, CalculateOptimalZoom(heightMeters) + zoomOffset));
+            if (mapType == "opentopo" && zoom > 17) zoom = 17;
 
             var ptSW = VN2000Transform.VN2000ToWGS84(minX, minY, crs.CentralMeridian, crs.ScaleFactor);
             var ptNE = VN2000Transform.VN2000ToWGS84(maxX, maxY, crs.CentralMeridian, crs.ScaleFactor);

@@ -262,6 +262,8 @@ namespace AVMap.Enji
 
             double viewHeightMeters = viewHeight * unitScale;
             int zoom = CalculateOptimalZoom(viewHeightMeters, screenH, (ptSW.Latitude + ptNE.Latitude) / 2.0);
+            string mapType = forceMapType ?? GoogleTileClient.ActiveMapType;
+            if (mapType == "opentopo" && zoom > 17) zoom = 17;
 
             var (tileMinX, tileMaxY) = VN2000Transform.LatLonToTile(ptSW.Latitude, ptSW.Longitude, zoom);
             var (tileMaxX, tileMinY) = VN2000Transform.LatLonToTile(ptNE.Latitude, ptNE.Longitude, zoom);
@@ -293,8 +295,6 @@ namespace AVMap.Enji
             double originY = Math.Min(nwCad.Y, seCad.Y);
             double widthMeters = Math.Abs(seCad.X - nwCad.X);
             double heightMeters = Math.Abs(nwCad.Y - seCad.Y);
-
-            string mapType = forceMapType ?? GoogleTileClient.ActiveMapType;
 
             string imageFile = null;
             isDownloading = true;

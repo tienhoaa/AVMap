@@ -1,11 +1,11 @@
 {
-  "version": "1.4.2",
+  "version": "2.0.0",
   "releaseDate": "2026-11-12",
-  "title": "AVMap v1.4.2 - Bổ Sung Map SAS.Planet (Bing Maps, OpenTopoMap) & Hỗ Trợ Ảnh JPEG 2000",
+  "title": "AVMap v2.0.0 - Thế Hệ Mới: Bổ Sung Map SAS.Planet (Bing Maps, OpenTopoMap) & Hỗ Trợ Ảnh JPEG 2000",
   "changeLog": [
-    "Khôi phục cụm máy chủ OpenStreetMap (OSM) Humanitarian HOT ổn định cao, mở siêu tốc không bao giờ bị đen hay lỗi",
-    "Tích hợp thêm 2 nguồn bản đồ đỉnh từ SAS.Planet: Microsoft Bing Maps vệ tinh sắc nét và OpenTopoMap (địa hình đường đồng mức + 3D)",
-    "Hỗ trợ chèn ảnh trực giao JPEG 2000 (.jp2, .j2k, .j2c) kèm file tọa độ thế giới (.j2w, .wld) tự động",
+    "Nâng cấp lớn phiên bản 2.0.0: Tích hợp thêm 2 nguồn bản đồ đỉnh từ SAS.Planet (Bing Maps vệ tinh và OpenTopoMap đường đồng mức 3D)",
+    "Hỗ trợ chèn ảnh trực giao JPEG 2000 (.jp2, .j2k, .j2c) kèm file tọa độ thế giới (.j2w, .wld) tự động giải nén sang GeoTIFF",
+    "Chuẩn hóa và khôi phục cụm máy chủ OpenStreetMap (OSM) ổn định cao, mở siêu tốc không bao giờ bị đen hay lỗi",
     "Sửa triệt để lỗi treo máy/đơ CAD khi đóng cửa sổ Google Street View hoặc nhấn Dọn Rác (AVCLEAN)",
     "Dọn sạch 100% ký hiệu mũi tên và góc nhìn Street View mà không để lại rác trên bản vẽ",
     "Khắc phục hoàn toàn xung đột khóa tài liệu (document lock) và lỗi vỡ font tiếng Việt trên nhãn Street View",

@@ -118,6 +118,7 @@ namespace AVMap.Enji
             // Tính mức zoom tối ưu dựa trên chiều lớn nhất (tránh ảnh quá tải nếu chọn tuyến đường dài)
             double maxDimMeters = Math.Max(widthMeters, heightMeters);
             int zoom = CalculateOptimalZoom(maxDimMeters);
+            if (GoogleTileClient.ActiveMapType == "opentopo" && zoom > 17) zoom = 17;
 
             var ptSW = VN2000Transform.VN2000ToWGS84(minX_m, minY_m, crs.CentralMeridian, crs.ScaleFactor);
             var ptNE = VN2000Transform.VN2000ToWGS84(maxX_m, maxY_m, crs.CentralMeridian, crs.ScaleFactor);

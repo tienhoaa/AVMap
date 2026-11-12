@@ -29,7 +29,7 @@ namespace AVMap
             try
             {
                 // Tự động dọn sạch các tile cũ có thể bị lưu lỗi trước đó
-                string[] patterns = new[] { "osm_*.*", "cyclosm_*.*", "carto_*.*", "opentopo_*.*" };
+                string[] patterns = new[] { "osm_*.*", "cyclosm_*.*", "opentopo_*.*" };
                 foreach (var p in patterns)
                 {
                     foreach (var f in Directory.GetFiles(cacheFolder, p))
@@ -40,7 +40,7 @@ namespace AVMap
             }
             catch { }
             client.Timeout = TimeSpan.FromSeconds(15);
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 AVMap/1.4.2");
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 AVMap/2.0.0");
         }
 
         public static string ActiveMapType { get; set; } = "y"; // "y" (Hybrid), "s" (Satellite), "m" (Road), "p" (Terrain)
@@ -59,7 +59,15 @@ namespace AVMap
                     {
                         try { File.Delete(file); } catch { }
                     }
+                    foreach (var file in Directory.GetFiles(cacheFolder, "cyclosm_*.*"))
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
                     foreach (var file in Directory.GetFiles(cacheFolder, "opentopo_*.*"))
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
+                    foreach (var file in Directory.GetFiles(cacheFolder, "esritopo_*.*"))
                     {
                         try { File.Delete(file); } catch { }
                     }
@@ -86,7 +94,7 @@ namespace AVMap
         public static async Task<Bitmap> DownloadTileAsync(int x, int y, int z, string mapType)
         {
             string safeType = mapType.Replace(",", "_");
-            string ext = (mapType == "svv" || mapType == "osm" || mapType == "opentopo") ? "png" : "jpg";
+            string ext = (mapType == "svv" || mapType == "osm" || mapType == "opentopo" || mapType == "cyclosm") ? "png" : "jpg";
             string fileName = $"{safeType}_{z}_{x}_{y}.{ext}";
             string filePath = Path.Combine(cacheFolder, fileName);
 
@@ -110,19 +118,171 @@ namespace AVMap
                 catch { }
             }
 
+            // Nếu là OpenTopoMap và mức zoom lớn hơn 17 (OpenTopoMap chỉ có tile đến zoom 17),
+            // tự động lấy tile cha zoom 17 rồi trích xuất (overzoom) chất lượng cao để không bị lỗi 404
+            if (mapType == "opentopo" && z > 17)
+            {
+                int diff = z - 17;
+                int parentX = x >> diff;
+                int parentY = y >> diff;
+                Bitmap parentBmp = await DownloadTileAsync(parentX, parentY, 17, mapType).ConfigureAwait(false);
+                if (parentBmp != null)
+                {
+                    try
+                    {
+                        int factor = 1 << diff;
+                        int subW = 256 / factor;
+                        int subH = 256 / factor;
+                        int subX = (x % factor) * subW;
+                        int subY = (y % factor) * subH;
+                        Bitmap subBmp = new Bitmap(256, 256, PixelFormat.Format24bppRgb);
+                        using (Graphics g = Graphics.FromImage(subBmp))
+                        {
+                            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                            g.DrawImage(parentBmp, new Rectangle(0, 0, 256, 256), new Rectangle(subX, subY, subW, subH), GraphicsUnit.Pixel);
+                        }
+                        try { subBmp.Save(filePath, ImageFormat.Png); } catch { }
+                        return subBmp;
+                    }
+                    catch { }
+                    finally
+                    {
+                        parentBmp.Dispose();
+                    }
+                }
+                return null;
+            }
+
             int serverIndex = Math.Abs((x + y) % 4);
+
+            if (mapType == "opentopo")
+            {
+                // Bản đồ địa hình OpenTopoMap (Đường đồng mức OSM + đổ bóng 3D từ SAS.Planet)
+                // Hỗ trợ cụm máy chủ đa tầng: OpenMaps CDN -> OpenTopoMap Org -> Esri World Topo Map dự phòng
+                char[] subs = new[] { 'a', 'b', 'c' };
+                char sub = subs[Math.Abs((x + y) % 3)];
+                string[] urls = new[]
+                {
+                    $"https://tile.openmaps.fr/opentopomap/{z}/{x}/{y}.png",
+                    $"https://{sub}.tile.opentopomap.org/{z}/{x}/{y}.png",
+                    $"https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}.jpg"
+                };
+
+                foreach (var candidateUrl in urls)
+                {
+                    try
+                    {
+                        byte[] data = await client.GetByteArrayAsync(candidateUrl).ConfigureAwait(false);
+                        if (data != null && data.Length > 500)
+                        {
+                            try { File.WriteAllBytes(filePath, data); } catch { }
+                            using (var ms = new MemoryStream(data))
+                            {
+                                return new Bitmap(ms);
+                            }
+                        }
+                    }
+                    catch { }
+                }
+                return null;
+            }
+
+            if (mapType == "cyclosm")
+            {
+                // OSM CyclOSM - Nguồn chuẩn SAS.Planet (Đường đồng mức, địa hình, ranh giới, đường sá chi tiết)
+                char[] subs = new[] { 'a', 'b', 'c' };
+                char sub = subs[Math.Abs((x + y) % 3)];
+                string cyclosmUrl = $"https://{sub}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png";
+
+                try
+                {
+                    using (var req = new HttpRequestMessage(HttpMethod.Get, cyclosmUrl))
+                    {
+                        // Headers chuẩn SAS.Planet để vượt qua xác thực Nginx (Referer)
+                        req.Headers.Referrer = new Uri($"https://{sub}.tile-cyclosm.openstreetmap.fr");
+                        req.Headers.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8");
+
+                        using (var resp = await client.SendAsync(req, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false))
+                        {
+                            if (resp.IsSuccessStatusCode)
+                            {
+                                byte[] data = await resp.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                                if (data != null && data.Length > 500)
+                                {
+                                    try { File.WriteAllBytes(filePath, data); } catch { }
+                                    using (var ms = new MemoryStream(data))
+                                    {
+                                        return new Bitmap(ms);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch { }
+
+                // Fallback nếu mạng bị nghẽn: Tự động dự phòng qua OpenTopoMap hoặc OSM HOT
+                string[] fallbackUrls = new[]
+                {
+                    $"https://tile.openmaps.fr/opentopomap/{z}/{x}/{y}.png",
+                    $"https://{sub}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+                };
+
+                foreach (var fbUrl in fallbackUrls)
+                {
+                    try
+                    {
+                        byte[] data = await client.GetByteArrayAsync(fbUrl).ConfigureAwait(false);
+                        if (data != null && data.Length > 500)
+                        {
+                            try { File.WriteAllBytes(filePath, data); } catch { }
+                            using (var ms = new MemoryStream(data))
+                            {
+                                return new Bitmap(ms);
+                            }
+                        }
+                    }
+                    catch { }
+                }
+
+                return null;
+            }
+
+            if (mapType == "osm")
+            {
+                // Bản đồ OpenStreetMap (OSM) từ cụm CDN Humanitarian HOT + Fallback OSM Org
+                char[] subs = new[] { 'a', 'b', 'c' };
+                char sub = subs[Math.Abs((x + y) % 3)];
+                string[] urls = new[]
+                {
+                    $"https://{sub}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+                    $"https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                };
+
+                foreach (var candidateUrl in urls)
+                {
+                    try
+                    {
+                        byte[] data = await client.GetByteArrayAsync(candidateUrl).ConfigureAwait(false);
+                        if (data != null && data.Length > 500)
+                        {
+                            try { File.WriteAllBytes(filePath, data); } catch { }
+                            using (var ms = new MemoryStream(data))
+                            {
+                                return new Bitmap(ms);
+                            }
+                        }
+                    }
+                    catch { }
+                }
+                return null;
+            }
+
             string url;
             if (mapType == "svv")
             {
                 // Lớp phủ các tuyến đường có Google Street View màu xanh dương
                 url = $"https://mt{serverIndex}.google.com/mapslt?lyrs=svv&x={x}&y={y}&z={z}&w=256&h=256&hl=en&style=40,18";
-            }
-            else if (mapType == "osm")
-            {
-                // Bản đồ OpenStreetMap (OSM) từ cụm CDN Humanitarian HOT (100% dữ liệu OSM, tốc độ cao, mở ổn định)
-                char[] subs = new[] { 'a', 'b', 'c' };
-                char sub = subs[Math.Abs((x + y) % 3)];
-                url = $"https://{sub}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png";
             }
             else if (mapType == "bing")
             {
@@ -130,17 +290,15 @@ namespace AVMap
                 string quadKey = TileXYToQuadKey(x, y, z);
                 url = $"https://ecn.t{serverIndex}.tiles.virtualearth.net/tiles/a{quadKey}.jpeg?g=1";
             }
-            else if (mapType == "opentopo")
-            {
-                // Bản đồ địa hình OpenTopoMap (Đường đồng mức + đổ bóng 3D từ SAS.Planet)
-                char[] subs = new[] { 'a', 'b', 'c' };
-                char sub = subs[Math.Abs((x + y) % 3)];
-                url = $"https://{sub}.tile.opentopomap.org/{z}/{x}/{y}.png";
-            }
             else if (mapType == "esri")
             {
                 // Ảnh vệ tinh toàn cầu độ nét cao từ Esri ArcGIS World Imagery miễn phí
                 url = $"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.jpg";
+            }
+            else if (mapType == "esritopo")
+            {
+                // Bản đồ địa hình Esri World Topographic Map độ nét cao (Đường đồng mức + đổ bóng 3D toàn cầu)
+                url = $"https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}.jpg";
             }
             else
             {

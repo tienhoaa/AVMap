@@ -73,8 +73,12 @@
                             <ComboBox Grid.Column="1" x:Name="cmbMapSource" Height="30" VerticalContentAlignment="Center">
                                 <ComboBoxItem Content="🛰️ Google Hybrid (Vệ tinh + Tên đường, địa danh)" IsSelected="True" Tag="y"/>
                                 <ComboBoxItem Content="🌍 Google Vệ tinh quang học thuần túy" Tag="s"/>
-                                <ComboBoxItem Content="🌐 OpenStreetMap (OSM / Bản đồ đường phố miễn phí)" Tag="osm"/>
+                                <ComboBoxItem Content="🛰️ Microsoft Bing Maps (Vệ tinh SAS.Planet)" Tag="bing"/>
                                 <ComboBoxItem Content="🛰️ Esri ArcGIS (Vệ tinh toàn cầu độ nét cao)" Tag="esri"/>
+                                <ComboBoxItem Content="🚴 OSM CyclOSM (SAS.Planet - Đường đồng mức &amp; Địa hình)" Tag="cyclosm"/>
+                                <ComboBoxItem Content="⛰️ OpenTopoMap (OSM - Bản đồ cao độ 3D)" Tag="opentopo"/>
+                                <ComboBoxItem Content="⛰️ Esri World Topo (Bản đồ địa hình Esri)" Tag="esritopo"/>
+                                <ComboBoxItem Content="🌐 OpenStreetMap (OSM - Đường phố &amp; Ranh giới)" Tag="osm"/>
                                 <ComboBoxItem Content="🛣️ Google Giao thông (Đường sá, quốc lộ)" Tag="m"/>
                                 <ComboBoxItem Content="⛰️ Google Địa hình (Độ dốc, đồi núi)" Tag="p"/>
                             </ComboBox>

@@ -20,8 +20,10 @@ namespace AVMap
         private void CardSatellite_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("s");
         private void CardBing_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("bing");
         private void CardEsri_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("esri");
-        private void CardOsm_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("osm");
+        private void CardCyclOsm_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("cyclosm");
         private void CardOpenTopo_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("opentopo");
+        private void CardEsriTopo_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("esritopo");
+        private void CardOsm_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("osm");
         private void CardRoadmap_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("m");
         private void CardTerrain_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("p");
 
@@ -51,13 +53,21 @@ namespace AVMap
                     cardEsri.BorderBrush = activeBrush;
                     cardEsri.BorderThickness = activeThick;
                     break;
-                case "osm":
-                    cardOsm.BorderBrush = activeBrush;
-                    cardOsm.BorderThickness = activeThick;
+                case "cyclosm":
+                    cardCyclOsm.BorderBrush = activeBrush;
+                    cardCyclOsm.BorderThickness = activeThick;
                     break;
                 case "opentopo":
                     cardOpenTopo.BorderBrush = activeBrush;
                     cardOpenTopo.BorderThickness = activeThick;
+                    break;
+                case "esritopo":
+                    cardEsriTopo.BorderBrush = activeBrush;
+                    cardEsriTopo.BorderThickness = activeThick;
+                    break;
+                case "osm":
+                    cardOsm.BorderBrush = activeBrush;
+                    cardOsm.BorderThickness = activeThick;
                     break;
                 case "m":
                     cardRoadmap.BorderBrush = activeBrush;
@@ -87,11 +97,17 @@ namespace AVMap
             cardEsri.BorderBrush = defaultBrush;
             cardEsri.BorderThickness = defaultThick;
 
-            cardOsm.BorderBrush = defaultBrush;
-            cardOsm.BorderThickness = defaultThick;
+            cardCyclOsm.BorderBrush = defaultBrush;
+            cardCyclOsm.BorderThickness = defaultThick;
 
             cardOpenTopo.BorderBrush = defaultBrush;
             cardOpenTopo.BorderThickness = defaultThick;
+
+            cardEsriTopo.BorderBrush = defaultBrush;
+            cardEsriTopo.BorderThickness = defaultThick;
+
+            cardOsm.BorderBrush = defaultBrush;
+            cardOsm.BorderThickness = defaultThick;
 
             cardRoadmap.BorderBrush = defaultBrush;
             cardRoadmap.BorderThickness = defaultThick;

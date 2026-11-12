@@ -281,6 +281,8 @@ namespace AVMap
 
             double viewHeightMeters = viewHeight * unitScale;
             int zoom = CalculateOptimalZoom(viewHeightMeters, screenH, (ptSW.Latitude + ptNE.Latitude) / 2.0);
+            string mapType = GoogleTileClient.ActiveMapType;
+            if (mapType == "opentopo" && zoom > 17) zoom = 17;
 
             var (tileMinX, tileMaxY) = VN2000Transform.LatLonToTile(ptSW.Latitude, ptSW.Longitude, zoom);
             var (tileMaxX, tileMinY) = VN2000Transform.LatLonToTile(ptNE.Latitude, ptNE.Longitude, zoom);
@@ -311,8 +313,6 @@ namespace AVMap
             double originY = Math.Min(nwCad.Y, seCad.Y);
             double widthMeters = Math.Abs(seCad.X - nwCad.X);
             double heightMeters = Math.Abs(nwCad.Y - seCad.Y);
-
-            string mapType = GoogleTileClient.ActiveMapType;
 
             // 2. Tải và ghép ảnh trên luồng phụ không làm đơ AutoCAD
             isDownloading = true;
@@ -400,6 +400,8 @@ namespace AVMap
 
             double viewHeightMeters = viewHeight * unitScale;
             int zoom = CalculateOptimalZoom(viewHeightMeters, screenH, (ptSW.Latitude + ptNE.Latitude) / 2.0);
+            string mapType = forceMapType ?? (GoogleTileClient.ActiveMapType ?? "y");
+            if (mapType == "opentopo" && zoom > 17) zoom = 17;
 
             var (tileMinX, tileMaxY) = VN2000Transform.LatLonToTile(ptSW.Latitude, ptSW.Longitude, zoom);
             var (tileMaxX, tileMinY) = VN2000Transform.LatLonToTile(ptNE.Latitude, ptNE.Longitude, zoom);
@@ -430,8 +432,6 @@ namespace AVMap
             double originY = Math.Min(nwCad.Y, seCad.Y);
             double widthMeters = Math.Abs(seCad.X - nwCad.X);
             double heightMeters = Math.Abs(nwCad.Y - seCad.Y);
-
-            string mapType = forceMapType ?? (GoogleTileClient.ActiveMapType ?? "y");
 
             string imageFile = null;
             try

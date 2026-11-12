@@ -242,7 +242,12 @@ namespace AVMap
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
 
-                this.DialogResult = true;
+                try
+                {
+                    this.DialogResult = true;
+                }
+                catch { }
+
                 this.Close();
             }
             catch (Exception ex)
