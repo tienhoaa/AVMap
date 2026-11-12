@@ -21,9 +21,7 @@ namespace AVMap
         private void CardBing_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("bing");
         private void CardEsri_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("esri");
         private void CardOsm_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("osm");
-        private void CardCyclOsm_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("cyclosm");
         private void CardOpenTopo_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("opentopo");
-        private void CardCartoLight_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("carto_light");
         private void CardRoadmap_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("m");
         private void CardTerrain_MouseDown(object sender, MouseButtonEventArgs e) => SelectCard("p");
 
@@ -57,17 +55,9 @@ namespace AVMap
                     cardOsm.BorderBrush = activeBrush;
                     cardOsm.BorderThickness = activeThick;
                     break;
-                case "cyclosm":
-                    cardCyclOsm.BorderBrush = activeBrush;
-                    cardCyclOsm.BorderThickness = activeThick;
-                    break;
                 case "opentopo":
                     cardOpenTopo.BorderBrush = activeBrush;
                     cardOpenTopo.BorderThickness = activeThick;
-                    break;
-                case "carto_light":
-                    cardCartoLight.BorderBrush = activeBrush;
-                    cardCartoLight.BorderThickness = activeThick;
                     break;
                 case "m":
                     cardRoadmap.BorderBrush = activeBrush;
@@ -100,14 +90,8 @@ namespace AVMap
             cardOsm.BorderBrush = defaultBrush;
             cardOsm.BorderThickness = defaultThick;
 
-            cardCyclOsm.BorderBrush = defaultBrush;
-            cardCyclOsm.BorderThickness = defaultThick;
-
             cardOpenTopo.BorderBrush = defaultBrush;
             cardOpenTopo.BorderThickness = defaultThick;
-
-            cardCartoLight.BorderBrush = defaultBrush;
-            cardCartoLight.BorderThickness = defaultThick;
 
             cardRoadmap.BorderBrush = defaultBrush;
             cardRoadmap.BorderThickness = defaultThick;

@@ -387,7 +387,7 @@ namespace AVMap.Enji
             {
                 svMapType = "s,svv"; // Ảnh vệ tinh thuần + đường xanh Street View
             }
-            else if (cleanBaseType == "m" || cleanBaseType == "osm" || cleanBaseType == "cyclosm" || cleanBaseType == "opentopo" || cleanBaseType == "carto_light")
+            else if (cleanBaseType == "m" || cleanBaseType == "osm" || cleanBaseType == "opentopo")
             {
                 svMapType = "m,svv"; // Bản đồ giao thông/địa hình + đường xanh Street View
             }

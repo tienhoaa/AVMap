@@ -1,16 +1,14 @@
 {
   "version": "1.4.2",
   "releaseDate": "2026-11-12",
-  "title": "AVMap v1.4.2 - Cập Nhật OpenStreetMap Bản Web Mới Nhất, Map SAS.Planet & Hỗ Trợ Ảnh JPEG 2000",
+  "title": "AVMap v1.4.2 - Bổ Sung Map SAS.Planet (Bing Maps, OpenTopoMap) & Hỗ Trợ Ảnh JPEG 2000",
   "changeLog": [
-    "Đồng bộ nguồn OpenStreetMap Standard thời gian thực trực tiếp từ cụm máy chủ web openstreetmap.org (mới nhất 100%, không bị cũ)",
-    "Bổ sung CyclOSM - Lớp bản đồ giao thông thế hệ mới trên web openstreetmap.org (chi tiết từng làn đường, ngõ hẻm & số nhà)",
-    "Bổ sung CARTO Positron (OSM CartoLight SAS.Planet) - Nền sáng xám bạc tối giản, tương phản tuyệt đối cho bản vẽ CAD",
-    "Tích hợp thêm 2 nguồn bản đồ từ SAS.Planet: Microsoft Bing Maps vệ tinh sắc nét và OpenTopoMap (địa hình đường đồng mức + 3D)",
-    "Cơ chế tải ngầm thông minh kèm máy chủ dự phòng, giải quyết triệt để 100% lỗi 'Access Blocked'",
+    "Khôi phục cụm máy chủ OpenStreetMap (OSM) Humanitarian HOT ổn định cao, mở siêu tốc không bao giờ bị đen hay lỗi",
+    "Tích hợp thêm 2 nguồn bản đồ đỉnh từ SAS.Planet: Microsoft Bing Maps vệ tinh sắc nét và OpenTopoMap (địa hình đường đồng mức + 3D)",
     "Hỗ trợ chèn ảnh trực giao JPEG 2000 (.jp2, .j2k, .j2c) kèm file tọa độ thế giới (.j2w, .wld) tự động",
     "Sửa triệt để lỗi treo máy/đơ CAD khi đóng cửa sổ Google Street View hoặc nhấn Dọn Rác (AVCLEAN)",
     "Dọn sạch 100% ký hiệu mũi tên và góc nhìn Street View mà không để lại rác trên bản vẽ",
+    "Khắc phục hoàn toàn xung đột khóa tài liệu (document lock) và lỗi vỡ font tiếng Việt trên nhãn Street View",
     "Đồng bộ tối ưu cho cả AutoCAD và enjiCAD 2026"
   ],
   "files_AutoCAD": [
